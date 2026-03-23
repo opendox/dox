@@ -126,3 +126,8 @@ type View struct {
 	PassLocalsToViews   bool   `json:"pass_locals_to_views" yaml:"pass_locals_to_views" mapstructure:"pass_locals_to_views"`
 	PassLocalsToContext bool   `json:"pass_locals_to_context" yaml:"pass_locals_to_context" mapstructure:"pass_locals_to_context"`
 }
+
+func (s *Server) Validate() error {
+	// TODO: validate addr format, timeout ranges, TLS file, etc.
+	return nil
+}

@@ -23,9 +23,38 @@
 
 package setting
 
+import (
+	"errors"
+	
+	"github.com/opendox/dox/internal/version"
+)
+
 // Application basic information configuration
 type Application struct {
 	Name        string `json:"name" yaml:"name" mapstructure:"name"`
 	Version     string `json:"version" yaml:"version" mapstructure:"version"`
 	Description string `json:"description" yaml:"description" mapstructure:"description"`
+}
+
+func (a *Application) Default() error {
+	if a.Name == "" {
+		a.Name = "Dox"
+	}
+	if a.Version == "" {
+		a.Version = version.GetInfo().Version()
+	}
+	if a.Description == "" {
+		a.Description = "Enterprise-grade Amazon product analytics platform"
+	}
+	return nil
+}
+
+func (a *Application) Validate() error {
+	if a.Name == "" {
+		return errors.New("application: name is required")
+	}
+	if a.Version == "" {
+		return errors.New("application: version is required")
+	}
+	return nil
 }

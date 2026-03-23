@@ -33,10 +33,29 @@ type Setting struct {
 	Server      Server      `json:"server" yaml:"server" mapstructure:"server"`
 }
 
+// Default Provide default values for all configurations
+func (s *Setting) Default() error {
+
+	defaulters := []Defaulter{
+		&s.Application,
+	}
+
+	var errs []error
+
+	for _, defaulter := range defaulters {
+		if err := defaulter.Default(); err != nil {
+			errs = append(errs, err)
+		}
+	}
+
+	return errors.Join(errs...)
+}
+
 // Validate checks all configuration sections
 func (s *Setting) Validate() error {
 
 	validators := []Validator{
+		&s.Application,
 		&s.Cache,
 		&s.Database,
 		&s.Server,

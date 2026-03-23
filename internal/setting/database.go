@@ -112,3 +112,8 @@ type MySQLOptions struct {
 	ConnectionAttributes     string            `json:"connection_attributes" yaml:"connection_attributes" mapstructure:"connection_attributes"` // "key1:val1,key2:val2"
 	Params                   map[string]string `json:"params" yaml:"params" mapstructure:"params"`                                              // session system variables
 }
+
+func (d *Database) Validate() error {
+	// TODO: validate driver type, required fields per driver, pool bounds, etc.
+	return nil
+}

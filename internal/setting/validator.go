@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  *
- * setting.go
+ * validator.go
  *
  * - Author   : Frost Leo <frostleo.dev@gmail.com>
  * - Created  : 2026-03-23
@@ -23,32 +23,7 @@
 
 package setting
 
-import "errors"
-
-// Setting Configuration sets required for each component
-type Setting struct {
-	Application Application `json:"application" yaml:"application" mapstructure:"application"`
-	Cache       Cache       `json:"cache" yaml:"cache" mapstructure:"cache"`
-	Database    Database    `json:"database" yaml:"database" mapstructure:"database"`
-	Server      Server      `json:"server" yaml:"server" mapstructure:"server"`
-}
-
-// Validate checks all configuration sections
-func (s *Setting) Validate() error {
-
-	validators := []Validator{
-		&s.Cache,
-		&s.Database,
-		&s.Server,
-	}
-
-	var errs []error
-
-	for _, validator := range validators {
-		if err := validator.Validate(); err != nil {
-			errs = append(errs, err)
-		}
-	}
-
-	return errors.Join(errs...)
+// Validator is the interface that all configuration sections should implement
+type Validator interface {
+	Validate() error
 }

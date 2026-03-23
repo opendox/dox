@@ -85,3 +85,8 @@ type RedisTLS struct {
 	InsecureSkipVerify bool   `json:"insecure_skip_verify" yaml:"insecure_skip_verify" mapstructure:"insecure_skip_verify"`
 	MinVersion         string `json:"min_version" yaml:"min_version" mapstructure:"min_version"` // "1.2" | "1.3", default: "1.2"
 }
+
+func (c *Cache) Validate() error {
+	// TODO: validate driver type, redis addr format, TTL bounds, etc.
+	return nil
+}

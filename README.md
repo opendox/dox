@@ -23,6 +23,6 @@
 
 <div align="left">
     <img
-        src="https://raw.githubsercontent.com/opendox/dox/main/.github/assets/project-logo.svg"
+        src="https://raw.githubusercontent.com/opendox/dox/main/.github/assets/images/svgs/project-logo.svg"
     >
 </div>

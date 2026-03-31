@@ -21,22 +21,11 @@
  * @Modified: 2026-03-31
  -->
 
-<!-- Logo -->
+<!-- Header -->
 <picture>
     <img
-        src="https://raw.githubusercontent.com/opendox/dox/main/assets/images/svgs/logo.svg"
-        alt="dox logo"
-        width="28"
-        height="28"
-    >
-</picture>
-
-<!-- Line -->
-<picture>
-    <img
-        src="https://raw.githubusercontent.com/opendox/dox/main/assets/images/svgs/line.svg"
-        alt=""
+        src="https://raw.githubusercontent.com/opendox/dox/main/assets/images/svgs/header.svg"
+        alt="dox — Rethinking how you analyze Amazon product performance"
         width="100%"
-        height="1"
     >
 </picture>

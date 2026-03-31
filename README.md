@@ -21,25 +21,22 @@
  * @Modified: 2026-03-31
  -->
 
-<div>
+<!-- Logo -->
+<picture>
     <img
         src="https://raw.githubusercontent.com/opendox/dox/main/assets/images/svgs/logo.svg"
         alt="dox logo"
         width="28"
         height="28"
-        style="pointer-events: none; user-select: none;"
-        draggable="false"
-        ondragstart="return false;"
-        oncontextmenu="return false;"
     >
+</picture>
+
+<!-- Line -->
+<picture>
     <img
         src="https://raw.githubusercontent.com/opendox/dox/main/assets/images/svgs/line.svg"
         alt=""
         width="100%"
         height="1"
-        style="pointer-events: none; user-select: none;"
-        draggable="false"
-        ondragstart="return false;"
-        oncontextmenu="return false;"
     >
-</div>
+</picture>

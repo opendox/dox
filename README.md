@@ -25,7 +25,7 @@
     <img
         src="https://raw.githubusercontent.com/opendox/dox/main/assets/images/svgs/project-logo.svg"
         alt="dox logo"
-        width="200"
-        height="200"
+        width="120"
+        height="120"
     >
 </div>

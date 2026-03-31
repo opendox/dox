@@ -28,7 +28,9 @@
         width="48"
         height="48"
     >
+</div>
 
+<div>
     <img
         src="https://raw.githubusercontent.com/opendox/dox/main/assets/images/svgs/line.svg"
         alt="dox logo"
@@ -36,4 +38,3 @@
         height="1"
     >
 </div>
-

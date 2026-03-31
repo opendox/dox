@@ -21,7 +21,7 @@
  * @Modified: 2026-03-31
  -->
 
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" style="display: block;" viewBox="0 0 30 30" width="1000" height="1000" preserveAspectRatio="none">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" style="display: block;" viewBox="0 0 2048 2048" width="1000" height="1000" preserveAspectRatio="none">
     <style>
         .logo-main { fill: #000000; }
         .logo-dot  { fill: #000000; fill-opacity: 0.964706; }

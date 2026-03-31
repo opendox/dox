@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  * @File    : README.md
- * @Author  : Frost Leo <frostleo.dev@gmail.com>
+ * @Author  : Frost Leo <mailto:frostleo.dev@gmail.com>
  * @Created : 2026-03-31
  * @Modified: 2026-03-31
  -->
@@ -24,5 +24,8 @@
 <div align="left">
     <img
         src="https://raw.githubusercontent.com/opendox/dox/main/.github/assets/images/svgs/project-logo.svg"
+        alt="dox logo"
+        width="200"
+        height="200"
     >
 </div>

@@ -23,7 +23,7 @@
 
 <div align="left">
     <img
-        src="https://raw.githubusercontent.com/opendox/dox/main/.github/assets/images/svgs/project-logo.svg"
+        src="https://raw.githubusercontent.com/opendox/dox/main/assets/images/svgs/project-logo.svg"
         alt="dox logo"
         width="200"
         height="200"

@@ -21,7 +21,8 @@
  * @Modified: 2026-03-31
  -->
 
-<div align="left">
+<div align="center">
+    <br>
     <img
         src="https://raw.githubusercontent.com/opendox/dox/main/assets/images/svgs/logo.svg"
         alt="dox logo"
@@ -31,11 +32,11 @@
     >
 </div>
 
-<div>
+<div align="center">
     <img
         src="https://raw.githubusercontent.com/opendox/dox/main/assets/images/svgs/line.svg"
         alt=""
-        width="100%"
+        width="360"
         height="1"
         style="pointer-events: none; user-select: none;"
     >

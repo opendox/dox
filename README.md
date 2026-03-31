@@ -27,7 +27,10 @@
         alt="dox logo"
         width="28"
         height="28"
-        style="pointer-events: none;"
+        style="pointer-events: none; user-select: none;"
+        draggable="false"
+        ondragstart="return false;"
+        oncontextmenu="return false;"
     >
     <img
         src="https://raw.githubusercontent.com/opendox/dox/main/assets/images/svgs/line.svg"
@@ -35,5 +38,8 @@
         width="100%"
         height="1"
         style="pointer-events: none; user-select: none;"
+        draggable="false"
+        ondragstart="return false;"
+        oncontextmenu="return false;"
     >
 </div>

@@ -27,14 +27,16 @@
         alt="dox logo"
         width="48"
         height="48"
+        style="pointer-events: none;"
     >
 </div>
 
 <div>
     <img
         src="https://raw.githubusercontent.com/opendox/dox/main/assets/images/svgs/line.svg"
-        alt="line"
+        alt=""
         width="100%"
         height="1"
+        style="pointer-events: none; user-select: none;"
     >
 </div>

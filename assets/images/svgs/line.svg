@@ -21,16 +21,14 @@
  * @Modified: 2026-03-31
  -->
 
-<svg version="1.1" xmlns="http://www.w3.org/2000/svg" style="display: block;" viewBox="0 0 2048 2048" width="1000" height="1000" preserveAspectRatio="none">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 1" preserveAspectRatio="none">
     <style>
-        .logo-main { fill: #000000; }
-        .line { stroke: #000000; stroke-width: 4; }
+        .line { stroke: #000000; stroke-width: 1; }
 
         @media (prefers-color-scheme: dark) {
-        .logo-main { fill: #ffffff; }
         .line { stroke: #ffffff; }
         }
     </style>
 
-    <line class="logo-line" x1="0" y1="2040" x2="2048" y2="2040"/>
+    <line class="line" x1="0" y1="0.5" x2="100" y2="0.5"/>
 </svg>

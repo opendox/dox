@@ -29,7 +29,6 @@
         height="48"
         style="pointer-events: none;"
     >
-    <br>
     <img
         src="https://raw.githubusercontent.com/opendox/dox/main/assets/images/svgs/line.svg"
         alt=""

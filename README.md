@@ -33,7 +33,7 @@
 <div>
     <img
         src="https://raw.githubusercontent.com/opendox/dox/main/assets/images/svgs/line.svg"
-        alt="dox logo"
+        alt="line"
         width="100%"
         height="1"
     >

@@ -1,0 +1,106 @@
+# dox
+# Copyright (C) 2026  OpenDox
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+# @File    : feature_request.yml
+# @Author  : Frost Leo <frostleo.dev@gmail.com>
+# @Created : 2026-04-18
+# @Modified: 2026-04-18
+
+name: Feature Request
+description: Propose a scoped capability for Dox.
+title: "[Feature]: "
+labels:
+  - "type: feature"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Dox is intentionally scoped around Web, Scheduling, Collection, Computation, plugins, and PostgreSQL-first analytics. Please describe the feature in terms of real user value and system boundaries.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I searched existing issues and did not find a duplicate.
+          required: true
+        - label: I can explain the user or business problem this feature solves.
+          required: true
+        - label: I understand this issue is a proposal, not a guarantee of implementation.
+          required: true
+
+  - type: textarea
+    id: background
+    attributes:
+      label: Background
+      description: What problem or opportunity does this feature address?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: What should Dox do?
+      placeholder: Describe the behavior, workflow, data source, plugin, API, UI, or operation you want.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Primary Area
+      options:
+        - Web
+        - Scheduling
+        - Collection
+        - Computation
+        - Plugin
+        - Frontend
+        - Database
+        - Operations
+        - Security
+        - Documentation
+        - Unsure
+    validations:
+      required: true
+
+  - type: textarea
+    id: non-goals
+    attributes:
+      label: Non-goals
+      description: What should this feature not include?
+      placeholder: List boundaries so the issue stays reviewable.
+    validations:
+      required: false
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance Criteria
+      placeholder: |
+        - [ ] ...
+        - [ ] ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: links
+    attributes:
+      label: Related Links
+      placeholder: "- Refs #"
+    validations:
+      required: false

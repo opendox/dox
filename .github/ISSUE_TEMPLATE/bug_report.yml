@@ -1,0 +1,112 @@
+# dox
+# Copyright (C) 2026  OpenDox
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+# @File    : bug_report.yml
+# @Author  : Frost Leo <frostleo.dev@gmail.com>
+# @Created : 2026-04-18
+# @Modified: 2026-04-18
+
+name: Bug Report
+description: Report a reproducible problem in Dox.
+title: "[Bug]: "
+labels:
+  - "type: bug"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping improve Dox. Please do not include real credentials, tokens, customer data, or sensitive business data.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I searched existing issues and did not find a duplicate.
+          required: true
+        - label: I removed secrets, credentials, tokens, and sensitive data from this report.
+          required: true
+        - label: I can describe the expected behavior and the actual behavior.
+          required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: What happened?
+      placeholder: Describe the problem and the behavior you expected.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps To Reproduce
+      placeholder: |
+        1. Configure ...
+        2. Run ...
+        3. See ...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected Area
+      options:
+        - Web
+        - Scheduling
+        - Collection
+        - Computation
+        - Plugin
+        - Frontend
+        - Database
+        - CI / tooling
+        - Documentation
+        - Unsure
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      placeholder: |
+        - OS:
+        - Go version:
+        - Node / pnpm version:
+        - PostgreSQL version:
+        - Redis version:
+        - Dox branch or commit:
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs
+      description: Redact secrets before pasting logs.
+      render: console
+    validations:
+      required: false
+
+  - type: textarea
+    id: links
+    attributes:
+      label: Related Links
+      placeholder: "- Refs #"
+    validations:
+      required: false

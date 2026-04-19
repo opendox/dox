@@ -1,0 +1,71 @@
+# dox
+# Copyright (C) 2026  OpenDox
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program. If not, see <http://www.gnu.org/licenses/>.
+#
+# @File    : documentation.yml
+# @Author  : Frost Leo <frostleo.dev@gmail.com>
+# @Created : 2026-04-18
+# @Modified: 2026-04-18
+
+name: Documentation
+description: Report missing, outdated, or unclear documentation.
+title: "[Docs]: "
+labels:
+  - "type: docs"
+body:
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I searched existing issues and did not find a duplicate.
+          required: true
+        - label: I checked the current README or documentation before filing this issue.
+          required: true
+
+  - type: textarea
+    id: location
+    attributes:
+      label: Documentation Location
+      placeholder: |
+        - File:
+        - Section:
+        - URL:
+    validations:
+      required: false
+
+  - type: textarea
+    id: issue
+    attributes:
+      label: Documentation Issue
+      description: What is missing, unclear, incorrect, or outdated?
+    validations:
+      required: true
+
+  - type: textarea
+    id: improvement
+    attributes:
+      label: Suggested Improvement
+      description: How should the documentation be improved?
+    validations:
+      required: false
+
+  - type: textarea
+    id: links
+    attributes:
+      label: Related Links
+      placeholder: "- Refs #"
+    validations:
+      required: false

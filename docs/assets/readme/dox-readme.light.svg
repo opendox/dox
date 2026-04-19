@@ -1,0 +1,196 @@
+<!--
+  dox
+  Copyright (C) 2026  OpenDox
+
+  This program is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program. If not, see <http://www.gnu.org/licenses/>.
+
+  @File    : dox-readme.light.svg
+  @Author  : Frost Leo <frostleo.dev@gmail.com>
+  @Created : 2026-04-18
+  @Modified: 2026-04-18
+-->
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="5500" viewBox="0 0 1600 5500" role="img" aria-labelledby="title desc">
+  <title id="title">Dox README light</title>
+  <desc id="desc">Dox is an Amazon product performance intelligence platform for sales, inventory, advertising, market data, plugin collection, scheduling, PostgreSQL-first computation, and analysis workflows.</desc>
+  <defs>
+    <linearGradient id="brandSlogan" x1="318" y1="224" x2="1428" y2="224" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0057a8"/>
+      <stop offset=".48" stop-color="#0a66b7"/>
+      <stop offset="1" stop-color="#2f88d8"/>
+    </linearGradient>
+    <linearGradient id="intelligence" x1="112" y1="4160" x2="650" y2="4160" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8b73ff"/>
+      <stop offset=".5" stop-color="#e85d00"/>
+      <stop offset="1" stop-color="#009ca6"/>
+    </linearGradient>
+    <style>
+      .paper { fill: #ffffff; }
+      .soft { fill: #f5f5f7; }
+      .ink { color: #111111; fill: #111111; }
+      .muted { fill: #6e6e73; }
+      .quiet { fill: #8e8e93; }
+      .line { stroke: #d8dade; stroke-width: 1.5; }
+      .hair { stroke: #e7e8ec; stroke-width: 1.2; }
+      .blue { fill: #8b73ff; stroke: #8b73ff; }
+      .orange { fill: #e85d00; stroke: #e85d00; }
+      .teal { fill: #009ca6; stroke: #009ca6; }
+      .purple { fill: #8b73ff; stroke: #8b73ff; }
+      .brandSlogan { fill: url(#brandSlogan); }
+      .gradText { fill: url(#intelligence); }
+      text { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif; letter-spacing: 0; }
+      .mono { font-family: "SFMono-Regular", Consolas, monospace; letter-spacing: 0; }
+      .brand { font-size: 44px; font-weight: 680; }
+      .eyebrow { font-size: 18px; font-weight: 620; }
+      .heroTitle { font-size: 112px; font-weight: 760; }
+      .sectionTitle { font-size: 78px; font-weight: 740; }
+      .sectionTitleSmall { font-size: 62px; font-weight: 730; }
+      .lead { font-size: 31px; font-weight: 530; }
+      .body { font-size: 25px; font-weight: 520; }
+      .small { font-size: 21px; font-weight: 520; }
+      .label { font-size: 34px; font-weight: 680; }
+      .stack { font-size: 30px; font-weight: 680; }
+      .code { font-size: 42px; font-weight: 680; font-family: "SFMono-Regular", Consolas, monospace; letter-spacing: 0; }
+      .footer { font-size: 20px; font-weight: 520; }
+    </style>
+  </defs>
+
+  <rect class="paper" width="1600" height="5500"/>
+
+  <g id="hero">
+    <rect class="paper" width="1600" height="900"/>
+    <g class="ink" transform="translate(174 132) scale(.11) translate(-460 -230)">
+      <path fill="currentColor" d="M 1123.56 747.296 L 1154.16 443.851 L 1162.72 356.556 C 1164.04 343.854 1165.72 323.878 1168.15 311.897 C 1170.63 299.432 1175.41 287.537 1182.24 276.819 C 1197.58 252.951 1218.1 241.201 1245.38 235.453 C 1304.85 222.919 1356.61 262.316 1368.58 320.322 C 1363.59 328.085 1366.31 355.978 1368.23 365.297 C 1353.96 528.895 1335.9 695.426 1319.74 858.95 L 1308.35 972.614 C 1306.81 987.238 1301.53 1029.41 1302.86 1041.82 C 1305.41 1065.51 1328.11 1111.91 1341.1 1133.51 C 1387.44 1210.57 1466.19 1313.18 1554.5 1342.56 C 1567.2 1345.72 1584.5 1350.7 1597.52 1350.96 C 1644.62 1351.88 1681.9 1359.15 1707.28 1404.4 C 1721.3 1429.39 1724.77 1458.93 1716.94 1486.49 C 1708.9 1514.43 1690.01 1537.99 1664.49 1551.92 C 1618.65 1576.91 1542.99 1560.88 1494.26 1547.22 C 1368.57 1512 1258.28 1410.53 1196.56 1296.72 C 1179.8 1334.38 1160.69 1368.58 1134.35 1400.48 C 910.462 1671.52 517.266 1565.97 482.367 1205.68 C 469.403 1065.29 512.731 925.507 602.822 817.065 C 738.848 652.358 951.847 605.137 1123.56 747.296 z M 861.771 1337.96 C 926.217 1326.67 974.09 1289.74 1011.16 1236.93 C 1053.87 1176.04 1070.85 1100.77 1058.41 1027.44 C 1042.95 938.55 976.476 868.507 881.925 876.304 C 825.051 883.199 778.345 912.186 743.273 957.011 C 693.827 1019.36 671.872 1099.14 682.454 1178.01 C 688.767 1228.02 713.43 1278.4 753.854 1309.49 C 783.977 1332.56 821.948 1342.9 859.61 1338.27 C 860.332 1338.18 861.052 1338.08 861.771 1337.96 z"/>
+      <path fill="currentColor" opacity=".965" d="M 1368.58 320.322 C 1370.11 333.276 1370.56 352.235 1368.23 365.297 C 1366.31 355.978 1363.59 328.085 1368.58 320.322 z"/>
+    </g>
+    <text x="318" y="224" class="brand brandSlogan">Rethinking Amazon Product Performance Intelligence</text>
+    <g fill="none" stroke-linecap="round" stroke-width="7">
+      <line x1="322" y1="280" x2="450" y2="280" class="blue"/>
+      <line x1="474" y1="280" x2="602" y2="280" class="orange"/>
+      <line x1="626" y1="280" x2="754" y2="280" class="teal"/>
+    </g>
+    <text x="174" y="486" class="heroTitle ink">Know the market.</text>
+    <text x="174" y="610" class="heroTitle ink">Move the product.</text>
+    <text x="174" y="704" class="lead muted">Dox connects Amazon operations, market intelligence, plugin collection,</text>
+    <text x="174" y="746" class="lead muted">scheduled computation, and alerting into one operating surface.</text>
+  </g>
+
+  <g id="business" transform="translate(0 900)">
+    <rect class="soft" width="1600" height="740"/>
+    <text x="112" y="132" class="eyebrow mono quiet">BUSINESS SURFACE</text>
+    <text x="112" y="246" class="sectionTitle ink">One surface.</text>
+    <text x="112" y="336" class="sectionTitle ink">Every product signal.</text>
+    <text x="112" y="420" class="lead muted">Sales, inventory, advertising, reports, listing quality, BSR, search result placement,</text>
+    <text x="112" y="462" class="lead muted">competitor ASINs, keywords, market estimates, and operational alerts stay connected.</text>
+    <text x="112" y="546" class="body muted">Dox is built for Amazon operators who need to understand what is selling, why traffic moves,</text>
+    <text x="112" y="584" class="body muted">which competitors own demand, where collection should repeat, and when business signals require action.</text>
+    <g transform="translate(112 658)">
+      <circle cx="0" cy="0" r="8" class="blue"/><text x="30" y="10" class="label ink">Sales</text>
+      <circle cx="204" cy="0" r="8" class="orange"/><text x="234" y="10" class="label ink">Inventory</text>
+      <circle cx="510" cy="0" r="8" class="teal"/><text x="540" y="10" class="label ink">Ads</text>
+      <circle cx="710" cy="0" r="8" class="purple"/><text x="740" y="10" class="label ink">Market</text>
+      <circle cx="960" cy="0" r="8" class="blue"/><text x="990" y="10" class="label ink">Product</text>
+      <circle cx="1210" cy="0" r="8" class="orange"/><text x="1240" y="10" class="label ink">Ops</text>
+    </g>
+  </g>
+
+  <g id="ecosystem" transform="translate(0 1640)">
+    <rect class="paper" width="1600" height="760"/>
+    <text x="112" y="138" class="eyebrow mono quiet">AMAZON ECOSYSTEM</text>
+    <text x="112" y="252" class="sectionTitle ink">Plugins turn platforms</text>
+    <text x="112" y="342" class="sectionTitle ink">into product intelligence.</text>
+    <text x="112" y="426" class="lead muted">Each source enters through a boundary, keeping credentials, audit, scheduling,</text>
+    <text x="112" y="468" class="lead muted">workers, alerts, and platform-specific logic outside the core system.</text>
+    <g transform="translate(112 552)" fill="none" stroke-linecap="round" stroke-width="6">
+      <line x1="0" y1="0" x2="286" y2="0" class="blue"/>
+      <line x1="362" y1="0" x2="648" y2="0" class="orange"/>
+      <line x1="724" y1="0" x2="1010" y2="0" class="teal"/>
+      <line x1="1086" y1="0" x2="1376" y2="0" class="purple"/>
+    </g>
+    <g transform="translate(112 620)">
+      <text x="0" y="0" class="label ink">SP-API</text><text x="0" y="44" class="small muted">orders, sales, inventory, reports</text>
+      <text x="362" y="0" class="label ink">Ads API</text><text x="362" y="44" class="small muted">campaigns, keywords, spend</text>
+      <text x="724" y="0" class="label ink">Retail Frontend</text><text x="724" y="44" class="small muted">search, listing, BSR, placement</text>
+      <text x="1086" y="0" class="label ink">External</text><text x="1086" y="44" class="small muted">SIF, SellerSprite, Lingxing, Feishu</text>
+    </g>
+  </g>
+
+  <g id="market-intelligence" transform="translate(0 2400)">
+    <rect class="soft" width="1600" height="760"/>
+    <text x="112" y="138" class="eyebrow mono quiet">MARKET INTELLIGENCE</text>
+    <text x="112" y="252" class="sectionTitle ink">From product context</text>
+    <text x="112" y="342" class="sectionTitle ink">to market structure.</text>
+    <text x="112" y="426" class="lead muted">A product can lead to traffic keywords, keywords lead to search results,</text>
+    <text x="112" y="468" class="lead muted">results expose ASINs, and ASINs expand the market map.</text>
+    <text x="112" y="552" class="body muted">The same workspace still covers ordinary Amazon operations: SP-API reports, ad performance,</text>
+    <text x="112" y="590" class="body muted">inventory movement, listing visibility, crawler data, and offline aggregation for analysis and alerts.</text>
+    <text x="112" y="690" class="code ink">product -&gt; keyword -&gt; search -&gt; ASIN -&gt; signal</text>
+  </g>
+
+  <g id="system" transform="translate(0 3160)">
+    <rect class="paper" width="1600" height="760"/>
+    <text x="112" y="138" class="eyebrow mono quiet">SYSTEM BOUNDARIES</text>
+    <text x="112" y="252" class="sectionTitle ink">Separate systems.</text>
+    <text x="112" y="342" class="sectionTitle ink">A single control plane.</text>
+    <text x="744" y="448" text-anchor="middle" class="label ink">Bridge</text>
+    <text x="744" y="486" text-anchor="middle" class="small muted">configuration to executable work</text>
+    <line x1="744" y1="506" x2="744" y2="658" class="blue" stroke-width="5" stroke-linecap="round"/>
+    <line x1="112" y1="612" x2="1488" y2="612" class="line"/>
+    <g transform="translate(112 612)">
+      <circle cx="0" cy="0" r="10" class="blue"/>
+      <circle cx="456" cy="0" r="10" class="teal"/>
+      <circle cx="912" cy="0" r="10" class="orange"/>
+      <circle cx="1376" cy="0" r="10" class="purple"/>
+      <text x="0" y="70" class="label ink">Web</text><text x="0" y="110" class="small muted">configure, authorize, analyze</text>
+      <text x="348" y="70" class="label ink">Scheduling</text><text x="348" y="110" class="small muted">policy becomes work</text>
+      <text x="800" y="70" class="label ink">Collection</text><text x="800" y="110" class="small muted">capture source data</text>
+      <text x="1210" y="70" class="label ink">Computation</text><text x="1210" y="110" class="small muted">prepare metrics</text>
+    </g>
+  </g>
+
+  <g id="data" transform="translate(0 3920)">
+    <rect class="soft" width="1600" height="720"/>
+    <text x="112" y="132" class="eyebrow mono quiet">POSTGRESQL-FIRST COMPUTATION</text>
+    <text x="112" y="246" class="sectionTitle ink">Raw detail in.</text>
+    <text x="112" y="336" class="sectionTitle ink">Decision metrics out.</text>
+    <g transform="translate(186 526)">
+      <line x1="0" y1="0" x2="1228" y2="0" class="line"/>
+      <circle cx="0" cy="0" r="10" class="blue"/>
+      <circle cx="307" cy="0" r="10" class="orange"/>
+      <circle cx="614" cy="0" r="10" class="teal"/>
+      <circle cx="921" cy="0" r="10" class="purple"/>
+      <circle cx="1228" cy="0" r="10" class="blue"/>
+      <text x="-36" y="78" class="code ink">raw</text>
+      <text x="271" y="78" class="code ink">ods</text>
+      <text x="578" y="78" class="code ink">dwd</text>
+      <text x="885" y="78" class="code ink">dws</text>
+      <text x="1192" y="78" class="code ink">ads</text>
+    </g>
+    <text x="112" y="682" class="body muted">Request handlers stay thin while scheduled SQL and computation jobs build application-facing layers.</text>
+  </g>
+
+  <g id="workspace" transform="translate(0 4640)">
+    <rect class="paper" width="1600" height="860"/>
+    <text x="112" y="132" class="eyebrow mono quiet">ANALYSIS WORKSPACE</text>
+    <text x="112" y="250" class="sectionTitle ink">Amazon product</text>
+    <text x="112" y="342" class="sectionTitle gradText">intelligence.</text>
+    <text x="112" y="426" class="lead muted">A focused workspace for operators.</text>
+    <text x="112" y="468" class="lead muted">Market context, alerts, repeatable collection, and reports stay together.</text>
+    <text x="112" y="572" class="stack ink">Go · Fiber · Ent</text>
+    <text x="500" y="572" class="stack ink">PostgreSQL · Redis · Queue</text>
+    <text x="980" y="572" class="stack ink">Vue · Figma · Playwright</text>
+    <line x1="112" y1="604" x2="1488" y2="604" class="line"/>
+    <text x="112" y="654" class="footer muted">Issue-first development. Signed commits. Reviewable changes.</text>
+    <text x="1488" y="654" text-anchor="end" class="footer muted">&#169; 2026 OpenDox. GPL-3.0-or-later.</text>
+  </g>
+</svg>

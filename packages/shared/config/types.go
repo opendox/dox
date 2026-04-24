@@ -23,15 +23,18 @@
 
 package config
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
 // ProviderKind identifies the provider implementation that should read a source.
 type ProviderKind string
 
 const (
-	// ProviderKindFile identifies a future local file provider.
+	// ProviderKindFile identifies the local file provider.
 	ProviderKindFile ProviderKind = "file"
-	// ProviderKindEnv identifies a future environment variable provider.
+	// ProviderKindEnv identifies the environment variable provider.
 	ProviderKindEnv ProviderKind = "env"
 	// ProviderKindRemote identifies a future remote configuration provider.
 	ProviderKindRemote ProviderKind = "remote"
@@ -69,7 +72,7 @@ const (
 	UnknownKeyPolicyReject UnknownKeyPolicy = "reject"
 )
 
-// Source describes a configuration source without implementing provider reads.
+// Source describes one configuration source for provider reads.
 type Source struct {
 	Name     string
 	Kind     ProviderKind
@@ -78,6 +81,25 @@ type Source struct {
 	Required bool
 	Priority int
 	Options  map[string]string
+}
+
+// Payload is the raw provider output that later pipeline stages parse, merge, and decode.
+type Payload struct {
+	Source     Source
+	Raw        []byte
+	Values     map[string]any
+	Metadata   map[string]string
+	Diagnostic SourceDiagnostic
+}
+
+// Provider reads one configuration source and returns a payload for later stages.
+type Provider interface {
+	Read(ctx context.Context, source Source) (*Payload, error)
+}
+
+// Parser converts provider bytes into structured values for later merge stages.
+type Parser interface {
+	Parse(ctx context.Context, payload Payload) (map[string]any, error)
 }
 
 // Request describes one explicit configuration loading operation.

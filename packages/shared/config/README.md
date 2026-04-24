@@ -43,4 +43,26 @@ The config package does not validate runtime-specific setting values. That belon
 
 ## Current Scope
 
-This milestone only defines the contract. It does not implement file loading, environment loading, parsing, merging, decoding, or remote configuration providers.
+The current package defines the loader contract and local provider primitives. It includes local file and environment variable providers.
+
+It does not implement parser bodies, multi-source merge behavior, decode behavior, or remote configuration providers.
+
+## Provider Scope
+
+Local providers are responsible for reading source payloads and preserving source metadata for later pipeline stages.
+
+Providers may:
+
+- read required or optional local files;
+- read environment variables by explicit prefix;
+- return raw bytes or structured key-value payloads;
+- attach source diagnostics for later operational review.
+
+Providers must not:
+
+- merge multiple sources;
+- decode values into runtime setting structs;
+- validate runtime-specific setting values;
+- hide required source failures.
+
+Parser implementations, merge behavior, decode behavior, and remote configuration providers are separate follow-up milestones.

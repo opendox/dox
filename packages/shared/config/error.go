@@ -34,9 +34,11 @@ type ErrorKind string
 const (
 	// ErrorKindContract means the caller violated the loader API contract.
 	ErrorKindContract ErrorKind = "contract"
-	// ErrorKindSource is reserved for future provider read failures.
+	// ErrorKindSource means a provider could not read a declared source.
 	ErrorKindSource ErrorKind = "source"
-	// ErrorKindDecode is reserved for future decode failures.
+	// ErrorKindParse means a parser could not convert source payload data.
+	ErrorKindParse ErrorKind = "parse"
+	// ErrorKindDecode is reserved for later target decode failures.
 	ErrorKindDecode ErrorKind = "decode"
 )
 
@@ -88,9 +90,14 @@ func ContractError(field string, reason string) error {
 	return &Error{Kind: ErrorKindContract, Field: field, Reason: reason}
 }
 
-// SourceError creates an error for future provider read failures.
+// SourceError creates an error for provider read failures.
 func SourceError(field string, reason string, err error) error {
 	return &Error{Kind: ErrorKindSource, Field: field, Reason: reason, Err: err}
+}
+
+// ParseError creates an error for parser failures.
+func ParseError(field string, reason string, err error) error {
+	return &Error{Kind: ErrorKindParse, Field: field, Reason: reason, Err: err}
 }
 
 // DecodeError creates an error for future decode failures.

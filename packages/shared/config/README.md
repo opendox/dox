@@ -43,9 +43,9 @@ The config package does not validate runtime-specific setting values. That belon
 
 ## Current Scope
 
-The current package defines the loader contract and local provider primitives. It includes local file and environment variable providers.
+The current package defines the loader contract, local provider primitives, and local parser primitives. It includes local file providers, environment variable providers, and YAML, JSON, and TOML parsers.
 
-It does not implement parser bodies, multi-source merge behavior, decode behavior, or remote configuration providers.
+It does not implement multi-source merge behavior, decode behavior, server runtime integration, or remote configuration providers.
 
 ## Provider Scope
 
@@ -65,4 +65,22 @@ Providers must not:
 - validate runtime-specific setting values;
 - hide required source failures.
 
-Parser implementations, merge behavior, decode behavior, and remote configuration providers are separate follow-up milestones.
+## Parser Scope
+
+Parsers are responsible for converting one provider payload into structured values for later pipeline stages.
+
+Parsers may:
+
+- parse YAML, JSON, and TOML file payloads;
+- pass through structured environment provider values through the none parser;
+- report malformed payloads with typed parse errors;
+- preserve generic map-based values for later merge and decode stages.
+
+Parsers must not:
+
+- merge multiple parsed payloads;
+- decode values into runtime setting structs;
+- validate runtime-specific setting values;
+- hide malformed required source payloads.
+
+Merge behavior, decode behavior, server runtime integration, and remote configuration providers are separate follow-up milestones.

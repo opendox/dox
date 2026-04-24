@@ -46,11 +46,11 @@ type ParserKind string
 const (
 	// ParserKindNone means the provider already returns structured values.
 	ParserKindNone ParserKind = "none"
-	// ParserKindYAML identifies a future YAML parser.
+	// ParserKindYAML identifies the YAML parser.
 	ParserKindYAML ParserKind = "yaml"
-	// ParserKindJSON identifies a future JSON parser.
+	// ParserKindJSON identifies the JSON parser.
 	ParserKindJSON ParserKind = "json"
-	// ParserKindTOML identifies a future TOML parser.
+	// ParserKindTOML identifies the TOML parser.
 	ParserKindTOML ParserKind = "toml"
 )
 

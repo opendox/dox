@@ -114,6 +114,11 @@ type Merger interface {
 	Merge(ctx context.Context, sources []ParsedSource, options Options) (*MergeResult, error)
 }
 
+// Decoder copies merged configuration values into a caller-provided target.
+type Decoder interface {
+	Decode(ctx context.Context, values map[string]any, target any, options Options) error
+}
+
 // MergeResult describes the output of a parsed source merge operation.
 type MergeResult struct {
 	Values      map[string]any

@@ -25,6 +25,7 @@
 //
 // The package validates loader API usage, source descriptors, and option
 // consistency. Providers read local payloads, parsers convert local file
-// payloads into structured values, and mergers combine parsed source values.
-// Runtime-specific setting validation belongs to each caller.
+// payloads into structured values, mergers combine parsed source values, and
+// decoders copy merged values into caller-owned targets. Runtime-specific
+// setting validation belongs to each caller.
 package config

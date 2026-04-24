@@ -116,11 +116,16 @@ func validateTarget(target any) error {
 }
 
 func validateOptions(options Options) error {
+	_, err := normalizeOptions(options)
+	return err
+}
+
+func normalizeOptions(options Options) (Options, error) {
 	if options.MergeStrategy == "" {
 		options.MergeStrategy = MergeStrategyDeepReplace
 	}
 	if options.MergeStrategy != MergeStrategyDeepReplace {
-		return ContractError("options.merge_strategy", "merge strategy is not supported")
+		return options, ContractError("options.merge_strategy", "merge strategy is not supported")
 	}
 	if options.UnknownKeyPolicy == "" {
 		options.UnknownKeyPolicy = UnknownKeyPolicyReject
@@ -128,12 +133,12 @@ func validateOptions(options Options) error {
 	switch options.UnknownKeyPolicy {
 	case UnknownKeyPolicyAllow, UnknownKeyPolicyReject:
 	default:
-		return ContractError("options.unknown_key_policy", "unknown key policy is not supported")
+		return options, ContractError("options.unknown_key_policy", "unknown key policy is not supported")
 	}
 	if options.Timeout < 0 {
-		return ContractError("options.timeout", "timeout must not be negative")
+		return options, ContractError("options.timeout", "timeout must not be negative")
 	}
-	return nil
+	return options, nil
 }
 
 func validateSource(index int, source Source) error {

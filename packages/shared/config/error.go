@@ -38,6 +38,8 @@ const (
 	ErrorKindSource ErrorKind = "source"
 	// ErrorKindParse means a parser could not convert source payload data.
 	ErrorKindParse ErrorKind = "parse"
+	// ErrorKindMerge means parsed source values could not be merged.
+	ErrorKindMerge ErrorKind = "merge"
 	// ErrorKindDecode is reserved for later target decode failures.
 	ErrorKindDecode ErrorKind = "decode"
 )
@@ -98,6 +100,11 @@ func SourceError(field string, reason string, err error) error {
 // ParseError creates an error for parser failures.
 func ParseError(field string, reason string, err error) error {
 	return &Error{Kind: ErrorKindParse, Field: field, Reason: reason, Err: err}
+}
+
+// MergeError creates an error for parsed value merge failures.
+func MergeError(field string, reason string, err error) error {
+	return &Error{Kind: ErrorKindMerge, Field: field, Reason: reason, Err: err}
 }
 
 // DecodeError creates an error for future decode failures.

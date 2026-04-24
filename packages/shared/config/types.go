@@ -102,6 +102,25 @@ type Parser interface {
 	Parse(ctx context.Context, payload Payload) (map[string]any, error)
 }
 
+// ParsedSource is one provider source after parser output is available.
+type ParsedSource struct {
+	Source     Source
+	Values     map[string]any
+	Diagnostic SourceDiagnostic
+}
+
+// Merger combines parsed sources into one structured value map.
+type Merger interface {
+	Merge(ctx context.Context, sources []ParsedSource, options Options) (*MergeResult, error)
+}
+
+// MergeResult describes the output of a parsed source merge operation.
+type MergeResult struct {
+	Values      map[string]any
+	SourceNames []string
+	Diagnostics Diagnostics
+}
+
 // Request describes one explicit configuration loading operation.
 type Request struct {
 	Runtime string
@@ -131,7 +150,8 @@ type Result struct {
 
 // Diagnostics records future source and merge metadata for operational review.
 type Diagnostics struct {
-	Sources []SourceDiagnostic
+	Sources   []SourceDiagnostic
+	Overrides []MergeOverride
 }
 
 // SourceDiagnostic describes how one source participated in a load operation.
@@ -142,4 +162,11 @@ type SourceDiagnostic struct {
 	Loaded   bool
 	Skipped  bool
 	Message  string
+}
+
+// MergeOverride records which source replaced a previously merged value.
+type MergeOverride struct {
+	Path           string
+	Source         string
+	PreviousSource string
 }

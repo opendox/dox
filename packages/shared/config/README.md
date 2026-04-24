@@ -43,9 +43,9 @@ The config package does not validate runtime-specific setting values. That belon
 
 ## Current Scope
 
-The current package defines the loader contract, local provider primitives, and local parser primitives. It includes local file providers, environment variable providers, and YAML, JSON, and TOML parsers.
+The current package defines the loader contract, local provider primitives, local parser primitives, and parsed source merge primitives. It includes local file providers, environment variable providers, YAML, JSON, and TOML parsers, and Koanf-backed deep replace merge behavior.
 
-It does not implement multi-source merge behavior, decode behavior, server runtime integration, or remote configuration providers.
+It does not implement decode behavior, server runtime integration, or remote configuration providers.
 
 ## Provider Scope
 
@@ -83,4 +83,24 @@ Parsers must not:
 - validate runtime-specific setting values;
 - hide malformed required source payloads.
 
-Merge behavior, decode behavior, server runtime integration, and remote configuration providers are separate follow-up milestones.
+## Merge Scope
+
+The merge layer is responsible for combining parsed source values into one structured value map.
+
+The merge layer may:
+
+- order parsed sources by priority;
+- deep-merge nested maps;
+- replace scalars and slices from higher-priority sources;
+- expand environment provider dotted keys before merging;
+- preserve source and override diagnostics for later operational review.
+
+The merge layer must not:
+
+- decode values into runtime setting structs;
+- validate runtime-specific setting values;
+- load source payloads;
+- parse raw file bytes;
+- expose Koanf as part of the public config package contract.
+
+Decode behavior, server runtime integration, and remote configuration providers are separate follow-up milestones.

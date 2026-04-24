@@ -24,7 +24,7 @@
 // Package config defines the shared Dox runtime configuration loading contract.
 //
 // The package validates loader API usage, source descriptors, and option
-// consistency. Providers read local payloads, and parsers convert local file
-// payloads into structured values. Runtime-specific setting validation belongs
-// to each caller.
+// consistency. Providers read local payloads, parsers convert local file
+// payloads into structured values, and mergers combine parsed source values.
+// Runtime-specific setting validation belongs to each caller.
 package config

@@ -18,7 +18,7 @@
   @File    : packages/shared/config/README.md
   @Author  : Frost Leo <frostleo.dev@gmail.com>
   @Created : 2026-04-24
-  @Modified: 2026-04-24
+  @Modified: 2026-04-25
 -->
 
 # Shared Config Loader Contract
@@ -43,9 +43,32 @@ The config package does not validate runtime-specific setting values. That belon
 
 ## Current Scope
 
-The current package defines the loader contract, local provider primitives, local parser primitives, parsed source merge primitives, and merged value decode primitives. It includes local file providers, environment variable providers, YAML, JSON, and TOML parsers, Koanf-backed deep replace merge behavior, and mapstructure-backed decode behavior.
+The current package implements the local loader pipeline. It includes local file providers, environment variable providers, YAML, JSON, and TOML parsers, Koanf-backed deep replace merge behavior, mapstructure-backed decode behavior, stable value fingerprints, source diagnostics, and merge override diagnostics.
 
 It does not implement server runtime integration or remote configuration providers.
+
+## Loader Scope
+
+The default loader is responsible for orchestrating one explicit request.
+
+The loader may:
+
+- validate the request contract before reading sources;
+- apply the request timeout to the full load operation;
+- resolve built-in or registered providers and parsers;
+- read every declared source;
+- parse payloads into structured values;
+- merge parsed values by source priority;
+- decode merged values into the caller target;
+- return runtime, environment, ordered source names, diagnostics, and a stable fingerprint.
+
+The loader must not:
+
+- validate runtime-specific setting values;
+- create runtime-specific setting structs;
+- expose Koanf or mapstructure as public API requirements;
+- fetch remote configuration unless a caller registers a provider for that capability;
+- watch files or hot-reload configuration.
 
 ## Provider Scope
 
@@ -119,7 +142,6 @@ The decode layer must not:
 
 - validate runtime-specific setting values;
 - create runtime-specific setting types;
-- orchestrate provider, parser, merge, and decode stages;
 - expose mapstructure as part of the public config package contract.
 
-Server runtime integration and remote configuration providers are separate follow-up milestones.
+Server runtime integration, remote configuration providers, and hot reload behavior are separate follow-up milestones.

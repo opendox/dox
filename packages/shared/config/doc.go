@@ -18,14 +18,13 @@
  * @File    : doc.go
  * @Author  : Frost Leo <frostleo.dev@gmail.com>
  * @Created : 2026-04-24
- * @Modified: 2026-04-24
+ * @Modified: 2026-04-25
  */
 
 // Package config defines the shared Dox runtime configuration loading contract.
 //
-// The package validates loader API usage, source descriptors, and option
-// consistency. Providers read local payloads, parsers convert local file
-// payloads into structured values, mergers combine parsed source values, and
-// decoders copy merged values into caller-owned targets. Runtime-specific
+// The package validates loader API usage, reads declared local sources, parses
+// source payloads, merges source values by priority, decodes merged values into
+// caller-owned targets, and returns operational diagnostics. Runtime-specific
 // setting validation belongs to each caller.
 package config

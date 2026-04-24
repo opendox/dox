@@ -137,38 +137,50 @@ func validateOptions(options Options) error {
 }
 
 func validateSource(index int, source Source) error {
+	return validateSourceFields(source, func(field string) string {
+		return sourceField(index, field)
+	})
+}
+
+func validateProviderSource(source Source) error {
+	return validateSourceFields(source, func(field string) string {
+		return "source." + field
+	})
+}
+
+func validateSourceFields(source Source, fieldName func(string) string) error {
 	sourceName := strings.TrimSpace(source.Name)
 	if sourceName == "" {
-		return ContractError(sourceField(index, "name"), "source name is required")
+		return ContractError(fieldName("name"), "source name is required")
 	}
 	if !sourceNamePattern.MatchString(sourceName) {
-		return ContractError(sourceField(index, "name"), "source name must use lowercase letters, digits, hyphens, underscores, or dots and start with a letter")
+		return ContractError(fieldName("name"), "source name must use lowercase letters, digits, hyphens, underscores, or dots and start with a letter")
 	}
 	kind := strings.TrimSpace(string(source.Kind))
 	if kind == "" {
-		return ContractError(sourceField(index, "kind"), "provider kind is required")
+		return ContractError(fieldName("kind"), "provider kind is required")
 	}
 	if !kindNamePattern.MatchString(kind) {
-		return ContractError(sourceField(index, "kind"), "provider kind must use lowercase letters, digits, hyphens, underscores, or dots and start with a letter")
+		return ContractError(fieldName("kind"), "provider kind must use lowercase letters, digits, hyphens, underscores, or dots and start with a letter")
 	}
 	parser := strings.TrimSpace(string(source.Parser))
 	if parser == "" {
-		return ContractError(sourceField(index, "parser"), "parser kind is required")
+		return ContractError(fieldName("parser"), "parser kind is required")
 	}
 	if !kindNamePattern.MatchString(parser) {
-		return ContractError(sourceField(index, "parser"), "parser kind must use lowercase letters, digits, hyphens, underscores, or dots and start with a letter")
+		return ContractError(fieldName("parser"), "parser kind must use lowercase letters, digits, hyphens, underscores, or dots and start with a letter")
 	}
 	if source.Kind == ProviderKindEnv && source.Parser != ParserKindNone {
-		return ContractError(sourceField(index, "parser"), "environment sources must use the none parser")
+		return ContractError(fieldName("parser"), "environment sources must use the none parser")
 	}
 	if source.Kind == ProviderKindFile && source.Parser == ParserKindNone {
-		return ContractError(sourceField(index, "parser"), "file sources must declare a parser")
+		return ContractError(fieldName("parser"), "file sources must declare a parser")
 	}
 	if strings.TrimSpace(source.Location) == "" {
-		return ContractError(sourceField(index, "location"), "source location is required")
+		return ContractError(fieldName("location"), "source location is required")
 	}
 	if source.Priority < 0 {
-		return ContractError(sourceField(index, "priority"), "priority must not be negative")
+		return ContractError(fieldName("priority"), "priority must not be negative")
 	}
 	return nil
 }

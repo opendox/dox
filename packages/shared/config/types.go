@@ -18,7 +18,7 @@
  * @File    : types.go
  * @Author  : Frost Leo <frostleo.dev@gmail.com>
  * @Created : 2026-04-24
- * @Modified: 2026-04-24
+ * @Modified: 2026-04-25
  */
 
 package config
@@ -62,7 +62,7 @@ const (
 	MergeStrategyDeepReplace MergeStrategy = "deep_replace"
 )
 
-// UnknownKeyPolicy defines how the future decoder should handle unknown fields.
+// UnknownKeyPolicy defines how the decoder should handle unknown fields.
 type UnknownKeyPolicy string
 
 const (
@@ -135,7 +135,7 @@ type Request struct {
 	Options Options
 }
 
-// Options controls future loading, merge, decode, and diagnostics behavior.
+// Options controls loading, merge, decode, and diagnostics behavior.
 type Options struct {
 	AllowEmptySources bool
 	MergeStrategy     MergeStrategy
@@ -144,7 +144,7 @@ type Options struct {
 	RedactKeys        []string
 }
 
-// Result describes the future output shape of a completed load.
+// Result describes the output shape of a completed load.
 type Result struct {
 	Runtime     string
 	Env         string
@@ -153,7 +153,7 @@ type Result struct {
 	Diagnostics Diagnostics
 }
 
-// Diagnostics records future source and merge metadata for operational review.
+// Diagnostics records source and merge metadata for operational review.
 type Diagnostics struct {
 	Sources   []SourceDiagnostic
 	Overrides []MergeOverride

@@ -193,6 +193,14 @@ func TestErrorKindHelpers(t *testing.T) {
 	if !errors.Is(err, &Error{Kind: ErrorKindSource}) {
 		t.Fatal("expected errors.Is to match source error kind")
 	}
+
+	parseErr := ParseError("source.base.raw", "failed", errors.New("boom"))
+	if !IsKind(parseErr, ErrorKindParse) {
+		t.Fatalf("expected parse error kind, got %v", parseErr)
+	}
+	if !errors.Is(parseErr, &Error{Kind: ErrorKindParse}) {
+		t.Fatal("expected errors.Is to match parse error kind")
+	}
 }
 
 func assertContractError(t *testing.T, err error) {

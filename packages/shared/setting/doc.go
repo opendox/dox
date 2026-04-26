@@ -18,13 +18,14 @@
  * @File    : doc.go
  * @Author  : Frost Leo <frostleo.dev@gmail.com>
  * @Created : 2026-04-25
- * @Modified: 2026-04-25
+ * @Modified: 2026-04-26
  */
 
-// Package setting defines shared Dox runtime identity setting fragments.
+// Package setting defines shared Dox identity setting fragments.
 //
 // The package intentionally contains reusable identity fragments such as
-// Application and Deployment. It is not a global runtime Setting aggregate.
-// Each Dox runtime owns its concrete setting aggregate and may compose these
-// fragments when their semantics match that runtime.
+// Organization, Application, System, Service, and Deployment. It is not a
+// global runtime Setting aggregate, service registry, deployment manifest
+// model, or metrics model. Each Dox runtime owns its concrete setting aggregate
+// and may compose these fragments when their semantics match that runtime.
 package setting

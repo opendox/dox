@@ -18,25 +18,29 @@
  * @File    : deployment.go
  * @Author  : Frost Leo <frostleo.dev@gmail.com>
  * @Created : 2026-04-25
- * @Modified: 2026-04-25
+ * @Modified: 2026-04-26
  */
 
 package setting
 
 import "errors"
 
-// Deployment describes where a Dox runtime process is deployed.
+// Deployment describes where a Dox runtime or service is deployed.
 type Deployment struct {
-	Region     string `json:"region" yaml:"region" mapstructure:"region" validate:"omitempty,dox_identifier"`
-	Zone       string `json:"zone" yaml:"zone" mapstructure:"zone" validate:"omitempty,dox_identifier"`
-	Cluster    string `json:"cluster" yaml:"cluster" mapstructure:"cluster" validate:"omitempty,dox_identifier"`
-	InstanceID string `json:"instance_id" yaml:"instance_id" mapstructure:"instance_id" validate:"omitempty,dox_identifier"`
+	Env          Env    `json:"env" yaml:"env" mapstructure:"env" validate:"required,dox_env"`
+	Region       string `json:"region" yaml:"region" mapstructure:"region" validate:"omitempty,dox_identifier"`
+	Zone         string `json:"zone" yaml:"zone" mapstructure:"zone" validate:"omitempty,dox_identifier"`
+	Cluster      string `json:"cluster" yaml:"cluster" mapstructure:"cluster" validate:"omitempty,dox_identifier"`
+	K8sNamespace string `json:"k8s_namespace" yaml:"k8s_namespace" mapstructure:"k8s_namespace" validate:"omitempty,dox_identifier"`
 }
 
-// Default is currently a no-op because deployment identity is environment-specific.
+// Default fills stable shared deployment defaults.
 func (d *Deployment) Default() error {
 	if d == nil {
 		return errors.New("setting: deployment must not be nil")
+	}
+	if d.Env == "" {
+		d.Env = EnvDev
 	}
 	return nil
 }

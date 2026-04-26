@@ -25,7 +25,7 @@
 
 `packages/shared/logging` defines the shared Dox logging vocabulary and configuration contract.
 
-This package maps the shared Dox logging configuration to zap, zapcore, and lumberjack primitives for runtime integrations. It also exposes the Dox-owned logger facade for business code. It does not initialize OpenTelemetry SDK providers or runtime wiring.
+This package maps the shared Dox logging configuration to zap, zapcore, lumberjack, and OpenTelemetry SDK primitives for runtime integrations. It also exposes the Dox-owned logger facade for business code. It does not install OpenTelemetry globals or wire server/runtime services.
 
 ## Boundary
 
@@ -44,6 +44,7 @@ The package must not:
 - expose `*zap.Logger` or `zap.Field` as a business API;
 - expose lumberjack as a business logging API;
 - implement OTLP or async queues in the zap core base;
+- install OpenTelemetry SDK providers as process globals;
 - wire logging into server, scheduler, collector, compute, IAM, or HTTP middleware.
 
 ## Logger API
@@ -75,6 +76,20 @@ The zap core base provides implementation helpers for runtime bootstrap code:
 File core declarations with `rotation.driver: lumberjack` use `gopkg.in/natefinch/lumberjack.v2`. The writer assumes only one process writes to the configured files on the same machine. Dox runtime deployment must avoid sharing the same rotating file path across multiple processes.
 
 File core declarations with `rotation.driver: none` use zap's basic file output path support without an internal rotator. `external` and `logrotate` remain configuration contract values for future runtime integration and are not supported by the zap file sink yet.
+
+## OpenTelemetry SDK Base
+
+The OpenTelemetry SDK base provides implementation helpers for runtime bootstrap code:
+
+- Dox `Resource` to OpenTelemetry resource attribute mapping, merged over the SDK default resource;
+- `trace_context` and `baggage` propagation mapping to a composite `TextMapPropagator`;
+- trace sampler mapping for `always_on`, `always_off`, `traceidratio`, and `parentbased_traceidratio`;
+- root OpenTelemetry, traces, metrics, and logs provider toggles;
+- force flush and shutdown using the shared logging shutdown timeout.
+
+`NewOpenTelemetrySDKBase` creates SDK providers only when the corresponding toggles are enabled. When root OpenTelemetry is disabled, it still returns the mapped resource and a no-op propagator, but no providers.
+
+The SDK base does not call `otel.SetTracerProvider`, `otel.SetMeterProvider`, `otel.SetTextMapPropagator`, or log global provider setters. Runtime bootstrap code will own that policy in a later issue. OTLP exporter setup is also left to a later runtime/exporter integration issue; enabling the OTLP exporter for this base returns a validation error instead of silently ignoring the setting.
 
 ## Resource
 

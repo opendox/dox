@@ -63,24 +63,6 @@ type Event struct {
 	Outcome  string `json:"event.outcome,omitempty" yaml:"event.outcome,omitempty" mapstructure:"event.outcome"`
 }
 
-// EDAEvent describes domain or message event metadata involved in a log event.
-type EDAEvent struct {
-	EventID         string `json:"eda.event_id,omitempty" yaml:"eda.event_id,omitempty" mapstructure:"eda.event_id"`
-	EventType       string `json:"eda.event_type,omitempty" yaml:"eda.event_type,omitempty" mapstructure:"eda.event_type"`
-	EventVersion    string `json:"eda.event_version,omitempty" yaml:"eda.event_version,omitempty" mapstructure:"eda.event_version"`
-	EventSource     string `json:"eda.event_source,omitempty" yaml:"eda.event_source,omitempty" mapstructure:"eda.event_source"`
-	Subject         string `json:"eda.subject,omitempty" yaml:"eda.subject,omitempty" mapstructure:"eda.subject"`
-	CorrelationID   string `json:"eda.correlation_id,omitempty" yaml:"eda.correlation_id,omitempty" mapstructure:"eda.correlation_id"`
-	CausationID     string `json:"eda.causation_id,omitempty" yaml:"eda.causation_id,omitempty" mapstructure:"eda.causation_id"`
-	MessageID       string `json:"eda.message_id,omitempty" yaml:"eda.message_id,omitempty" mapstructure:"eda.message_id"`
-	Topic           string `json:"eda.topic,omitempty" yaml:"eda.topic,omitempty" mapstructure:"eda.topic"`
-	Partition       string `json:"eda.partition,omitempty" yaml:"eda.partition,omitempty" mapstructure:"eda.partition"`
-	Offset          string `json:"eda.offset,omitempty" yaml:"eda.offset,omitempty" mapstructure:"eda.offset"`
-	ConsumerGroup   string `json:"eda.consumer_group,omitempty" yaml:"eda.consumer_group,omitempty" mapstructure:"eda.consumer_group"`
-	ConsumerID      string `json:"eda.consumer_id,omitempty" yaml:"eda.consumer_id,omitempty" mapstructure:"eda.consumer_id"`
-	DeliveryAttempt int    `json:"eda.delivery_attempt,omitempty" yaml:"eda.delivery_attempt,omitempty" mapstructure:"eda.delivery_attempt"`
-}
-
 // Node describes where inside a service an event happened.
 type Node struct {
 	Component string `json:"component,omitempty" yaml:"component,omitempty" mapstructure:"component"`

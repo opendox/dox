@@ -89,37 +89,6 @@ const (
 )
 
 const (
-	// FieldEDAEventID identifies a domain or message event.
-	FieldEDAEventID = "eda.event_id"
-	// FieldEDAEventType identifies a domain or message event type.
-	FieldEDAEventType = "eda.event_type"
-	// FieldEDAEventVersion identifies a domain event schema version.
-	FieldEDAEventVersion = "eda.event_version"
-	// FieldEDAEventSource identifies a domain event source.
-	FieldEDAEventSource = "eda.event_source"
-	// FieldEDASubject identifies the event subject.
-	FieldEDASubject = "eda.subject"
-	// FieldEDACorrelationID identifies the EDA correlation id.
-	FieldEDACorrelationID = "eda.correlation_id"
-	// FieldEDACausationID identifies the EDA causation id.
-	FieldEDACausationID = "eda.causation_id"
-	// FieldEDAMessageID identifies the broker message id.
-	FieldEDAMessageID = "eda.message_id"
-	// FieldEDATopic identifies the broker topic.
-	FieldEDATopic = "eda.topic"
-	// FieldEDAPartition identifies the broker partition.
-	FieldEDAPartition = "eda.partition"
-	// FieldEDAOffset identifies the broker offset.
-	FieldEDAOffset = "eda.offset"
-	// FieldEDAConsumerGroup identifies the consumer group.
-	FieldEDAConsumerGroup = "eda.consumer_group"
-	// FieldEDAConsumerID identifies the consumer instance.
-	FieldEDAConsumerID = "eda.consumer_id"
-	// FieldEDADeliveryAttempt identifies the delivery attempt.
-	FieldEDADeliveryAttempt = "eda.delivery_attempt"
-)
-
-const (
 	// FieldComponent identifies the service-internal component.
 	FieldComponent = "component"
 	// FieldOperation identifies the current operation.

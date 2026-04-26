@@ -90,8 +90,6 @@ func TestFieldNameConstants(t *testing.T) {
 	assertEqual(t, FieldCorrelationID, "correlation_id")
 	assertEqual(t, FieldEventName, "event.name")
 	assertEqual(t, FieldEventDataset, "event.dataset")
-	assertEqual(t, FieldEDAEventType, "eda.event_type")
-	assertEqual(t, FieldEDACausationID, "eda.causation_id")
 	assertEqual(t, FieldComponent, "component")
 	assertEqual(t, FieldOperation, "operation")
 	assertEqual(t, FieldTags, "tags")
@@ -429,28 +427,18 @@ func TestConfigJSONAndYAMLTags(t *testing.T) {
 	}
 }
 
-func TestModelTypesKeepObservabilityAndEDAEventsSeparate(t *testing.T) {
+func TestModelTypesRepresentObservabilityEvents(t *testing.T) {
 	event := Event{
-		Name:     "eda.event.published",
-		Dataset:  "dox.iam.eda",
-		Category: "messaging",
-		Action:   "publish",
-		Outcome:  "success",
-	}
-	eda := EDAEvent{
-		EventID:       "evt_001",
-		EventType:     "iam.login.failed",
-		CausationID:   "req_001",
-		CorrelationID: "corr_001",
-		MessageID:     "msg_001",
-		Topic:         "iam.login",
+		Name:     "iam.login.rejected",
+		Dataset:  "dox.iam.security",
+		Category: "authentication",
+		Type:     "denied",
+		Action:   "login",
+		Outcome:  "failure",
 	}
 
-	if event.Name != "eda.event.published" {
-		t.Fatalf("expected observability event name to describe publish action, got %q", event.Name)
-	}
-	if eda.EventType != "iam.login.failed" {
-		t.Fatalf("expected EDA event type to describe domain event, got %q", eda.EventType)
+	if event.Name != "iam.login.rejected" || event.Dataset != "dox.iam.security" {
+		t.Fatalf("expected observability event to describe the log record, got %+v", event)
 	}
 }
 

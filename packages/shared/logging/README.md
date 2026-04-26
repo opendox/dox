@@ -34,7 +34,6 @@ The package owns stable names and configuration shapes for:
 - resource identity;
 - correlation identity;
 - observability event classification;
-- EDA domain/message event metadata;
 - service-internal node fields;
 - low-cardinality business tags;
 - event facts and higher-cardinality fields;
@@ -45,7 +44,7 @@ The package must not:
 - expose `*zap.Logger`, `zap.Field`, or `zap.Config` as a business API;
 - import zap, lumberjack, or OpenTelemetry SDK packages in this first stage;
 - write logs to console, files, stdout, stderr, OTLP, or async queues;
-- wire logging into server, scheduler, collector, compute, IAM, HTTP middleware, or EDA runtime packages.
+- wire logging into server, scheduler, collector, compute, IAM, or HTTP middleware.
 
 ## Resource
 
@@ -72,7 +71,7 @@ dox.runtime
 
 ## Correlation
 
-Correlation fields connect one request, task, plugin execution, or EDA chain:
+Correlation fields connect one request, task, plugin execution, or cross-runtime chain:
 
 ```text
 trace_id
@@ -89,7 +88,7 @@ plugin_run_id
 
 `trace_id`, `span_id`, and `trace_flags` align with OpenTelemetry. `correlation_id` is Dox-owned and must survive across request, task, event, and plugin boundaries.
 
-## Observability Events And EDA Events
+## Observability Events
 
 `event.*` describes what the log record observes:
 
@@ -102,36 +101,15 @@ event.action
 event.outcome
 ```
 
-`eda.*` describes a domain or message event involved in the observed action:
-
-```text
-eda.event_id
-eda.event_type
-eda.event_version
-eda.event_source
-eda.subject
-eda.correlation_id
-eda.causation_id
-eda.message_id
-eda.topic
-eda.partition
-eda.offset
-eda.consumer_group
-eda.consumer_id
-eda.delivery_attempt
-```
-
 Example:
 
 ```text
-event.name = eda.event.published
-event.action = publish
-event.outcome = success
-
-eda.event_id = evt_001
-eda.event_type = iam.login.failed
-eda.topic = iam.login
-eda.message_id = msg_001
+event.name = iam.login.rejected
+event.dataset = dox.iam.security
+event.category = authentication
+event.type = denied
+event.action = login
+event.outcome = failure
 ```
 
 There is no first-class `channel` field. Dataset, category, type, action, and outcome carry that classification.
@@ -260,6 +238,5 @@ Separate issues should implement:
 - server setting and bootstrap integration;
 - HTTP correlation middleware;
 - IAM login chain sample;
-- EDA publisher and consumer logging;
 - scheduler, collector, and compute integration;
 - Filebeat, Fluent Bit, and OpenTelemetry Collector examples.

@@ -28,6 +28,7 @@
 // runtimes. It defines resource identity, correlation, observability event,
 // node, tag, field, and logging configuration types. It also maps the Dox
 // logging configuration to zap, zapcore, and lumberjack primitives for runtime
-// integration. It does not initialize OpenTelemetry SDK providers or the Dox
-// business logger API. Those are follow-up runtime integration milestones.
+// integration and exposes the Dox-owned logger facade. It does not initialize
+// OpenTelemetry SDK providers or runtime wiring. Those are follow-up runtime
+// integration milestones.
 package logging

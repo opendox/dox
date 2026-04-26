@@ -25,7 +25,7 @@
 
 `packages/shared/logging` defines the shared Dox logging vocabulary and configuration contract.
 
-This package maps the shared Dox logging configuration to zap, zapcore, and lumberjack primitives for runtime integrations. It does not make zap the business logging API, and it does not initialize OpenTelemetry SDK providers or the Dox logger facade.
+This package maps the shared Dox logging configuration to zap, zapcore, and lumberjack primitives for runtime integrations. It also exposes the Dox-owned logger facade for business code. It does not initialize OpenTelemetry SDK providers or runtime wiring.
 
 ## Boundary
 
@@ -45,6 +45,19 @@ The package must not:
 - expose lumberjack as a business logging API;
 - implement OTLP or async queues in the zap core base;
 - wire logging into server, scheduler, collector, compute, IAM, or HTTP middleware.
+
+## Logger API
+
+Business code should depend on `logging.Logger` and `logging.Attr`, not zap.
+
+The facade supports:
+
+- `Debug`, `Info`, `Warn`, `Error`, `DPanic`, `Panic`, and `Fatal`;
+- `Named`, `With`, and `Sync`;
+- `ResourceAttr`, `CorrelationAttr`, `EventAttr`, `NodeAttr`, `TagsAttr`, `FieldsAttr`, `FieldAttr`, and `ErrorAttr`;
+- context correlation through `ContextWithCorrelation`, `ContextWithMergedCorrelation`, `CorrelationFromContext`, and `MergeCorrelation`.
+
+Runtime bootstrap code constructs a `ZapCoreBase` from configuration, then wraps it with `NewLogger`. HTTP middleware, scheduler jobs, collector runs, and compute tasks should add correlation to context in later integration issues.
 
 ## Zap Core Base
 
@@ -248,7 +261,6 @@ cores:
 
 Separate issues should implement:
 
-- Dox logger API and context correlation;
 - OpenTelemetry SDK base;
 - server setting and bootstrap integration;
 - HTTP correlation middleware;

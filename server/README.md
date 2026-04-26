@@ -18,14 +18,14 @@
   @File    : server/README.md
   @Author  : Frost Leo <frostleo.dev@gmail.com>
   @Created : 2026-04-24
-  @Modified: 2026-04-25
+  @Modified: 2026-04-26
 -->
 
 # Dox Server
 
 `server` is the Web backend runtime for Dox.
 
-The current module contains the CLI entrypoint, shared version command, and bootstrap configuration snapshot loading. HTTP server startup, concrete runtime setting definitions, logging, database access, and EDA integration are intentionally out of scope for this milestone.
+The current module contains the CLI entrypoint, shared version command, bootstrap configuration snapshot loading, and the initial server-owned identity setting aggregate. HTTP server startup, database access, logging, security, and EDA integration are intentionally out of scope for this milestone.
 
 ## Configuration Bootstrap
 
@@ -38,7 +38,7 @@ The current bootstrap convention is:
 - `configs/local.<format>` as an optional local override;
 - `DOX_SERVER_` environment variables as optional final overrides.
 
-The bootstrap snapshot currently uses `map[string]any`. Concrete HTTP, database, cache, logger, security, and IAM setting structs remain out of scope until those runtime resources are introduced.
+The bootstrap snapshot currently uses `map[string]any`. Concrete server setting groups belong under `server/internal/setting`, where each configuration group owns its own file. The first group is identity; concrete HTTP, database, cache, logger, security, and IAM setting structs remain out of scope until those runtime resources are introduced.
 
 ## Usage
 

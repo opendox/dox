@@ -68,13 +68,13 @@ func TestConfigDefaultAppliesSharedContract(t *testing.T) {
 	if cfg.Shutdown.Timeout != 5*time.Second {
 		t.Fatalf("expected shutdown timeout 5s, got %s", cfg.Shutdown.Timeout)
 	}
-	if !cfg.Redaction.Enabled || cfg.Redaction.Replacement != DefaultRedactionReplacement {
+	if !boolValue(cfg.Redaction.Enabled) || cfg.Redaction.Replacement != DefaultRedactionReplacement {
 		t.Fatalf("expected redaction defaults, got %+v", cfg.Redaction)
 	}
 	if !contains(cfg.Redaction.Keys, "authorization") || !contains(cfg.Redaction.Keys, "client_secret") {
 		t.Fatalf("expected sensitive redaction keys, got %#v", cfg.Redaction.Keys)
 	}
-	if !cfg.OTel.Propagation.TraceContext || !cfg.OTel.Propagation.Baggage {
+	if !boolValue(cfg.OTel.Propagation.TraceContext) || !boolValue(cfg.OTel.Propagation.Baggage) {
 		t.Fatalf("expected OpenTelemetry propagation defaults, got %+v", cfg.OTel.Propagation)
 	}
 	if cfg.OTel.Exporter.OTLP.Enabled {
@@ -96,6 +96,92 @@ func TestFieldNameConstants(t *testing.T) {
 	assertEqual(t, FieldOperation, "operation")
 	assertEqual(t, FieldTags, "tags")
 	assertEqual(t, FieldFields, "fields")
+}
+
+func TestConfigDefaultPreservesExplicitDisabledToggles(t *testing.T) {
+	cfg := Config{
+		Cores: []CoreConfig{
+			{
+				Name:        "console",
+				Enabled:     boolPtr(false),
+				Type:        CoreTypeConsole,
+				Level:       LevelInfo,
+				Encoding:    EncodingConsole,
+				OutputPaths: []string{"stdout"},
+				Datasets:    []string{"*"},
+			},
+			{
+				Name:        "service-file",
+				Enabled:     boolPtr(false),
+				Type:        CoreTypeFile,
+				Level:       LevelInfo,
+				Encoding:    EncodingJSON,
+				OutputPaths: []string{DefaultFilePathTemplate},
+				Datasets:    []string{"*"},
+				Rotation: RotationConfig{
+					Enabled:   boolPtr(false),
+					Compress:  boolPtr(false),
+					LocalTime: boolPtr(false),
+				},
+			},
+		},
+		Buffering: BufferingConfig{
+			Enabled: boolPtr(false),
+		},
+		Redaction: RedactionConfig{
+			Enabled: boolPtr(false),
+		},
+		OTel: OpenTelemetryConfig{
+			Enabled: boolPtr(false),
+			Propagation: OpenTelemetryPropagation{
+				TraceContext: boolPtr(false),
+				Baggage:      boolPtr(false),
+			},
+			Traces: OpenTelemetryTraces{
+				Enabled: boolPtr(false),
+			},
+			Metrics: OpenTelemetrySignal{
+				Enabled: boolPtr(false),
+			},
+			Logs: OpenTelemetrySignal{
+				Enabled: boolPtr(false),
+			},
+			Exporter: OpenTelemetryExporter{
+				OTLP: OTLPExporterConfig{
+					Insecure: boolPtr(false),
+				},
+			},
+		},
+	}
+
+	if err := cfg.Default(); err != nil {
+		t.Fatalf("default config: %v", err)
+	}
+
+	if boolValue(cfg.Cores[0].Enabled) || boolValue(cfg.Cores[1].Enabled) {
+		t.Fatalf("expected explicit disabled cores to stay disabled, got %+v", cfg.Cores)
+	}
+	if boolValue(cfg.Cores[1].Rotation.Enabled) {
+		t.Fatalf("expected explicit disabled rotation to stay disabled, got %+v", cfg.Cores[1].Rotation)
+	}
+	if boolValue(cfg.Cores[1].Rotation.Compress) || boolValue(cfg.Cores[1].Rotation.LocalTime) {
+		t.Fatalf("expected explicit disabled rotation options to stay disabled, got %+v", cfg.Cores[1].Rotation)
+	}
+	if boolValue(cfg.Buffering.Enabled) {
+		t.Fatalf("expected explicit disabled buffering to stay disabled, got %+v", cfg.Buffering)
+	}
+	if boolValue(cfg.Redaction.Enabled) {
+		t.Fatalf("expected explicit disabled redaction to stay disabled, got %+v", cfg.Redaction)
+	}
+	if boolValue(cfg.OTel.Enabled) ||
+		boolValue(cfg.OTel.Propagation.TraceContext) ||
+		boolValue(cfg.OTel.Propagation.Baggage) ||
+		boolValue(cfg.OTel.Traces.Enabled) ||
+		boolValue(cfg.OTel.Metrics.Enabled) ||
+		boolValue(cfg.OTel.Logs.Enabled) ||
+		boolValue(cfg.OTel.Exporter.OTLP.Insecure) {
+		t.Fatalf("expected explicit disabled OpenTelemetry toggles to stay disabled, got %+v", cfg.OTel)
+	}
 }
 
 func TestConfigValidateRejectsInvalidValues(t *testing.T) {
@@ -228,6 +314,92 @@ func TestConfigDecodesWithMapstructure(t *testing.T) {
 	}
 }
 
+func TestConfigDecodePreservesExplicitDisabledToggles(t *testing.T) {
+	var cfg Config
+
+	err := sharedconfig.DecodeValues(context.Background(), map[string]any{
+		"cores": []any{
+			map[string]any{
+				"name":         "console",
+				"enabled":      false,
+				"type":         "console",
+				"level":        "info",
+				"encoding":     "console",
+				"output_paths": []any{"stdout"},
+				"datasets":     []any{"*"},
+			},
+			map[string]any{
+				"name":         "service-file",
+				"enabled":      false,
+				"type":         "file",
+				"level":        "info",
+				"encoding":     "json",
+				"output_paths": []any{DefaultFilePathTemplate},
+				"datasets":     []any{"*"},
+				"rotation": map[string]any{
+					"enabled":    false,
+					"compress":   false,
+					"local_time": false,
+				},
+			},
+		},
+		"buffering": map[string]any{
+			"enabled": false,
+		},
+		"redaction": map[string]any{
+			"enabled": false,
+		},
+		"otel": map[string]any{
+			"enabled": false,
+			"propagation": map[string]any{
+				"trace_context": false,
+				"baggage":       false,
+			},
+			"traces": map[string]any{
+				"enabled": false,
+			},
+			"metrics": map[string]any{
+				"enabled": false,
+			},
+			"logs": map[string]any{
+				"enabled": false,
+			},
+			"exporter": map[string]any{
+				"otlp": map[string]any{
+					"insecure": false,
+				},
+			},
+		},
+	}, &cfg, sharedconfig.Options{})
+	if err != nil {
+		t.Fatalf("decode logging config: %v", err)
+	}
+	if err := cfg.Default(); err != nil {
+		t.Fatalf("default logging config: %v", err)
+	}
+
+	if boolValue(cfg.Cores[0].Enabled) || boolValue(cfg.Cores[1].Enabled) {
+		t.Fatalf("expected decoded disabled cores to stay disabled, got %+v", cfg.Cores)
+	}
+	if boolValue(cfg.Cores[1].Rotation.Enabled) ||
+		boolValue(cfg.Cores[1].Rotation.Compress) ||
+		boolValue(cfg.Cores[1].Rotation.LocalTime) {
+		t.Fatalf("expected decoded disabled rotation settings to stay disabled, got %+v", cfg.Cores[1].Rotation)
+	}
+	if boolValue(cfg.Buffering.Enabled) || boolValue(cfg.Redaction.Enabled) {
+		t.Fatalf("expected decoded disabled buffering/redaction to stay disabled, got buffering=%+v redaction=%+v", cfg.Buffering, cfg.Redaction)
+	}
+	if boolValue(cfg.OTel.Enabled) ||
+		boolValue(cfg.OTel.Propagation.TraceContext) ||
+		boolValue(cfg.OTel.Propagation.Baggage) ||
+		boolValue(cfg.OTel.Traces.Enabled) ||
+		boolValue(cfg.OTel.Metrics.Enabled) ||
+		boolValue(cfg.OTel.Logs.Enabled) ||
+		boolValue(cfg.OTel.Exporter.OTLP.Insecure) {
+		t.Fatalf("expected decoded disabled OpenTelemetry toggles to stay disabled, got %+v", cfg.OTel)
+	}
+}
+
 func TestConfigJSONAndYAMLTags(t *testing.T) {
 	cfg := Config{}
 	if err := cfg.Default(); err != nil {
@@ -287,7 +459,7 @@ func assertCore(t *testing.T, core CoreConfig, name string, coreType CoreType, e
 	if core.Name != name {
 		t.Fatalf("expected core name %q, got %q", name, core.Name)
 	}
-	if !core.Enabled {
+	if !boolValue(core.Enabled) {
 		t.Fatalf("expected core %q to be enabled", name)
 	}
 	if core.Type != coreType {

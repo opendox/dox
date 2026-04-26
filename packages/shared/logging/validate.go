@@ -143,7 +143,7 @@ func (c EncoderConfig) validate(v *validator, field string) {
 }
 
 func (c BufferingConfig) validate(v *validator) {
-	if !c.Enabled {
+	if !boolValue(c.Enabled) {
 		return
 	}
 	if c.SizeBytes <= 0 {
@@ -161,7 +161,7 @@ func (c ShutdownConfig) validate(v *validator) {
 }
 
 func (c RedactionConfig) validate(v *validator) {
-	if !c.Enabled {
+	if !boolValue(c.Enabled) {
 		return
 	}
 	if strings.TrimSpace(c.Replacement) == "" {
@@ -178,7 +178,7 @@ func (c RedactionConfig) validate(v *validator) {
 }
 
 func (c OpenTelemetryConfig) validate(v *validator) {
-	if !c.Enabled {
+	if !boolValue(c.Enabled) {
 		return
 	}
 	c.Traces.validate(v)
@@ -187,7 +187,7 @@ func (c OpenTelemetryConfig) validate(v *validator) {
 }
 
 func (c OpenTelemetryTraces) validate(v *validator) {
-	if !c.Enabled {
+	if !boolValue(c.Enabled) {
 		return
 	}
 	if !c.Sampler.Type.IsValid() {
@@ -263,7 +263,7 @@ func (v *validator) cores(cores []CoreConfig) {
 		}
 		v.level(field+".level", core.Level)
 		v.encoding(field+".encoding", core.Encoding)
-		if core.Enabled && len(core.OutputPaths) == 0 {
+		if boolValue(core.Enabled) && len(core.OutputPaths) == 0 {
 			v.add(field+".output_paths", "enabled core requires at least one output path")
 		}
 		for pathIndex, path := range core.OutputPaths {
@@ -289,7 +289,7 @@ func (c RotationConfig) validate(v *validator, field string) {
 	if !c.Driver.IsValid() {
 		v.add(field+".driver", "rotation driver is not supported")
 	}
-	if !c.Enabled {
+	if !boolValue(c.Enabled) {
 		return
 	}
 	if c.Driver == RotationDriverLumberjack {

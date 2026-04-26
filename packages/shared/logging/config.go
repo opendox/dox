@@ -215,7 +215,7 @@ type SamplingConfig struct {
 // CoreConfig declares one future zapcore output core.
 type CoreConfig struct {
 	Name        string         `json:"name" yaml:"name" mapstructure:"name"`
-	Enabled     bool           `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
+	Enabled     *bool          `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
 	Type        CoreType       `json:"type" yaml:"type" mapstructure:"type"`
 	Level       Level          `json:"level" yaml:"level" mapstructure:"level"`
 	Encoding    Encoding       `json:"encoding" yaml:"encoding" mapstructure:"encoding"`
@@ -227,17 +227,17 @@ type CoreConfig struct {
 // RotationConfig declares a future file rotation mapping.
 type RotationConfig struct {
 	Driver     RotationDriver `json:"driver" yaml:"driver" mapstructure:"driver"`
-	Enabled    bool           `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
+	Enabled    *bool          `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
 	MaxSizeMB  int            `json:"max_size_mb" yaml:"max_size_mb" mapstructure:"max_size_mb"`
 	MaxBackups int            `json:"max_backups" yaml:"max_backups" mapstructure:"max_backups"`
 	MaxAgeDays int            `json:"max_age_days" yaml:"max_age_days" mapstructure:"max_age_days"`
-	Compress   bool           `json:"compress" yaml:"compress" mapstructure:"compress"`
-	LocalTime  bool           `json:"local_time" yaml:"local_time" mapstructure:"local_time"`
+	Compress   *bool          `json:"compress" yaml:"compress" mapstructure:"compress"`
+	LocalTime  *bool          `json:"local_time" yaml:"local_time" mapstructure:"local_time"`
 }
 
 // BufferingConfig declares future buffered writer behavior.
 type BufferingConfig struct {
-	Enabled       bool          `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
+	Enabled       *bool         `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
 	SizeBytes     int           `json:"size_bytes" yaml:"size_bytes" mapstructure:"size_bytes"`
 	FlushInterval time.Duration `json:"flush_interval" yaml:"flush_interval" mapstructure:"flush_interval"`
 }
@@ -249,14 +249,14 @@ type ShutdownConfig struct {
 
 // RedactionConfig declares sensitive key replacement policy.
 type RedactionConfig struct {
-	Enabled     bool     `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
+	Enabled     *bool    `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
 	Replacement string   `json:"replacement" yaml:"replacement" mapstructure:"replacement"`
 	Keys        []string `json:"keys" yaml:"keys" mapstructure:"keys"`
 }
 
 // OpenTelemetryConfig declares future OpenTelemetry SDK integration settings.
 type OpenTelemetryConfig struct {
-	Enabled     bool                     `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
+	Enabled     *bool                    `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
 	Propagation OpenTelemetryPropagation `json:"propagation" yaml:"propagation" mapstructure:"propagation"`
 	Traces      OpenTelemetryTraces      `json:"traces" yaml:"traces" mapstructure:"traces"`
 	Metrics     OpenTelemetrySignal      `json:"metrics" yaml:"metrics" mapstructure:"metrics"`
@@ -267,13 +267,13 @@ type OpenTelemetryConfig struct {
 
 // OpenTelemetryPropagation declares propagation settings.
 type OpenTelemetryPropagation struct {
-	TraceContext bool `json:"trace_context" yaml:"trace_context" mapstructure:"trace_context"`
-	Baggage      bool `json:"baggage" yaml:"baggage" mapstructure:"baggage"`
+	TraceContext *bool `json:"trace_context" yaml:"trace_context" mapstructure:"trace_context"`
+	Baggage      *bool `json:"baggage" yaml:"baggage" mapstructure:"baggage"`
 }
 
 // OpenTelemetryTraces declares trace settings.
 type OpenTelemetryTraces struct {
-	Enabled bool               `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
+	Enabled *bool              `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
 	Sampler TraceSamplerConfig `json:"sampler" yaml:"sampler" mapstructure:"sampler"`
 }
 
@@ -285,7 +285,7 @@ type TraceSamplerConfig struct {
 
 // OpenTelemetrySignal declares a simple OpenTelemetry signal toggle.
 type OpenTelemetrySignal struct {
-	Enabled bool `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
+	Enabled *bool `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
 }
 
 // OpenTelemetryExporter declares exporter settings.
@@ -298,7 +298,7 @@ type OTLPExporterConfig struct {
 	Enabled     bool              `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
 	Endpoint    string            `json:"endpoint" yaml:"endpoint" mapstructure:"endpoint"`
 	Protocol    OTLPProtocol      `json:"protocol" yaml:"protocol" mapstructure:"protocol"`
-	Insecure    bool              `json:"insecure" yaml:"insecure" mapstructure:"insecure"`
+	Insecure    *bool             `json:"insecure" yaml:"insecure" mapstructure:"insecure"`
 	Headers     map[string]string `json:"headers" yaml:"headers" mapstructure:"headers"`
 	Compression string            `json:"compression" yaml:"compression" mapstructure:"compression"`
 	Timeout     time.Duration     `json:"timeout" yaml:"timeout" mapstructure:"timeout"`
@@ -418,6 +418,7 @@ func (c *SamplingConfig) Default() {
 
 // Default fills core defaults.
 func (c *CoreConfig) Default(level Level) {
+	defaultBool(&c.Enabled, true)
 	if c.Level == "" {
 		c.Level = level
 	}
@@ -458,12 +459,14 @@ func (c *RotationConfig) Default() {
 		if c.MaxAgeDays == 0 {
 			c.MaxAgeDays = 14
 		}
-		c.Compress = true
-		c.LocalTime = true
+		defaultBool(&c.Compress, true)
+		defaultBool(&c.LocalTime, true)
 	}
 	if c.Driver != RotationDriverNone {
-		c.Enabled = true
+		defaultBool(&c.Enabled, true)
+		return
 	}
+	defaultBool(&c.Enabled, false)
 }
 
 // Default fills buffering defaults.
@@ -474,7 +477,7 @@ func (c *BufferingConfig) Default() {
 	if c.FlushInterval == 0 {
 		c.FlushInterval = time.Second
 	}
-	c.Enabled = true
+	defaultBool(&c.Enabled, true)
 }
 
 // Default fills shutdown defaults.
@@ -486,7 +489,7 @@ func (c *ShutdownConfig) Default() {
 
 // Default fills redaction defaults.
 func (c *RedactionConfig) Default() {
-	c.Enabled = true
+	defaultBool(&c.Enabled, true)
 	if c.Replacement == "" {
 		c.Replacement = DefaultRedactionReplacement
 	}
@@ -497,24 +500,24 @@ func (c *RedactionConfig) Default() {
 
 // Default fills OpenTelemetry configuration defaults.
 func (c *OpenTelemetryConfig) Default() {
-	c.Enabled = true
+	defaultBool(&c.Enabled, true)
 	c.Propagation.Default()
 	c.Traces.Default()
-	c.Metrics.Enabled = true
-	c.Logs.Enabled = true
+	defaultBool(&c.Metrics.Enabled, true)
+	defaultBool(&c.Logs.Enabled, true)
 	c.Exporter.Default()
 	c.Batch.Default()
 }
 
 // Default fills OpenTelemetry propagation defaults.
 func (c *OpenTelemetryPropagation) Default() {
-	c.TraceContext = true
-	c.Baggage = true
+	defaultBool(&c.TraceContext, true)
+	defaultBool(&c.Baggage, true)
 }
 
 // Default fills OpenTelemetry trace defaults.
 func (c *OpenTelemetryTraces) Default() {
-	c.Enabled = true
+	defaultBool(&c.Enabled, true)
 	c.Sampler.Default()
 }
 
@@ -541,7 +544,7 @@ func (c *OTLPExporterConfig) Default() {
 	if c.Protocol == "" {
 		c.Protocol = OTLPProtocolGRPC
 	}
-	c.Insecure = true
+	defaultBool(&c.Insecure, true)
 	if c.Headers == nil {
 		c.Headers = map[string]string{}
 	}
@@ -592,7 +595,7 @@ func DefaultRedactionKeys() []string {
 func defaultConsoleCore(level Level) CoreConfig {
 	return CoreConfig{
 		Name:        "console",
-		Enabled:     true,
+		Enabled:     boolPtr(true),
 		Type:        CoreTypeConsole,
 		Level:       level,
 		Encoding:    EncodingConsole,
@@ -604,7 +607,7 @@ func defaultConsoleCore(level Level) CoreConfig {
 func defaultServiceFileCore(level Level) CoreConfig {
 	return CoreConfig{
 		Name:        "service-file",
-		Enabled:     true,
+		Enabled:     boolPtr(true),
 		Type:        CoreTypeFile,
 		Level:       level,
 		Encoding:    EncodingJSON,
@@ -612,12 +615,27 @@ func defaultServiceFileCore(level Level) CoreConfig {
 		Datasets:    []string{"*"},
 		Rotation: RotationConfig{
 			Driver:     RotationDriverLumberjack,
-			Enabled:    true,
+			Enabled:    boolPtr(true),
 			MaxSizeMB:  100,
 			MaxBackups: 10,
 			MaxAgeDays: 14,
-			Compress:   true,
-			LocalTime:  true,
+			Compress:   boolPtr(true),
+			LocalTime:  boolPtr(true),
 		},
 	}
+}
+
+func defaultBool(target **bool, value bool) {
+	if *target == nil {
+		*target = boolPtr(value)
+	}
+}
+
+func boolPtr(value bool) *bool {
+	copied := value
+	return &copied
+}
+
+func boolValue(value *bool) bool {
+	return value != nil && *value
 }

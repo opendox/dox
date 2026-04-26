@@ -27,8 +27,8 @@
 // This package is the first-stage observability vocabulary for Dox backend
 // runtimes. It defines resource identity, correlation, observability event,
 // node, tag, field, and logging configuration types. It also maps the Dox
-// logging configuration to zap, zapcore, and lumberjack primitives for runtime
-// integration and exposes the Dox-owned logger facade. It does not initialize
-// OpenTelemetry SDK providers or runtime wiring. Those are follow-up runtime
-// integration milestones.
+// logging configuration to zap, zapcore, lumberjack, and OpenTelemetry SDK
+// primitives for runtime integration and exposes the Dox-owned logger facade.
+// It does not install OpenTelemetry globals or wire runtime services. Those are
+// follow-up runtime integration milestones.
 package logging

@@ -18,7 +18,7 @@
  * @File    : application_test.go
  * @Author  : Frost Leo <frostleo.dev@gmail.com>
  * @Created : 2026-04-25
- * @Modified: 2026-04-25
+ * @Modified: 2026-04-26
  */
 
 package setting
@@ -28,103 +28,183 @@ import (
 	"testing"
 )
 
-func TestApplicationDefaultDerivesSharedIdentity(t *testing.T) {
-	app := Application{Runtime: RuntimeServer}
+func TestIdentityFragmentsApplyConservativeDefaults(t *testing.T) {
+	organization := Organization{}
+	application := Application{}
+	system := System{Runtime: RuntimeServer}
+	service := Service{}
+	deployment := Deployment{}
 
-	if err := app.Default(); err != nil {
-		t.Fatalf("default application: %v", err)
+	for _, item := range []struct {
+		name      string
+		defaulter func() error
+	}{
+		{"organization", organization.Default},
+		{"application", application.Default},
+		{"system", system.Default},
+		{"service", func() error {
+			return service.Default(application, system)
+		}},
+		{"deployment", deployment.Default},
+	} {
+		if err := item.defaulter(); err != nil {
+			t.Fatalf("default %s: %v", item.name, err)
+		}
 	}
 
-	if app.Name != "dox" {
-		t.Fatalf("expected default name dox, got %q", app.Name)
+	if organization.Name != "opendox" {
+		t.Fatalf("expected organization default opendox, got %q", organization.Name)
 	}
-	if app.Namespace != "opendox" {
-		t.Fatalf("expected default namespace opendox, got %q", app.Namespace)
+	if application.Name != "dox" {
+		t.Fatalf("expected application default dox, got %q", application.Name)
 	}
-	if app.Env != EnvDev {
-		t.Fatalf("expected default env dev, got %q", app.Env)
+	if system.Runtime != RuntimeServer {
+		t.Fatalf("expected explicit runtime to remain server, got %q", system.Runtime)
 	}
-	if app.Runtime != RuntimeServer {
-		t.Fatalf("expected runtime to remain server, got %q", app.Runtime)
+	if service.Namespace != "dox" {
+		t.Fatalf("expected service namespace from application name, got %q", service.Namespace)
 	}
-	if app.Service != "dox-server" {
-		t.Fatalf("expected derived service dox-server, got %q", app.Service)
+	if service.Name != "server" {
+		t.Fatalf("expected service name from system runtime, got %q", service.Name)
 	}
-	if err := app.Validate(); err != nil {
-		t.Fatalf("validate defaulted application: %v", err)
+	if deployment.Env != EnvDev {
+		t.Fatalf("expected deployment env default dev, got %q", deployment.Env)
+	}
+
+	for name, validator := range map[string]func() error{
+		"organization": organization.Validate,
+		"application":  application.Validate,
+		"system":       system.Validate,
+		"service":      service.Validate,
+		"deployment":   deployment.Validate,
+	} {
+		if err := validator(); err != nil {
+			t.Fatalf("validate %s: %v", name, err)
+		}
 	}
 }
 
-func TestApplicationDefaultDoesNotInventRuntime(t *testing.T) {
-	app := Application{}
+func TestSystemDefaultDoesNotInventRuntime(t *testing.T) {
+	system := System{}
 
-	if err := app.Default(); err != nil {
-		t.Fatalf("default application: %v", err)
+	if err := system.Default(); err != nil {
+		t.Fatalf("default system: %v", err)
 	}
-	if app.Runtime != "" {
-		t.Fatalf("expected runtime to remain empty, got %q", app.Runtime)
+	if system.Runtime != "" {
+		t.Fatalf("expected runtime to remain empty, got %q", system.Runtime)
 	}
-	if app.Service != "" {
-		t.Fatalf("expected service to remain empty without runtime, got %q", app.Service)
-	}
-	if err := app.Validate(); !hasValidationField(err, "Application.runtime", "required") {
+	if err := system.Validate(); !hasValidationField(err, "System.runtime", "required") {
 		t.Fatalf("expected required runtime validation error, got %v", err)
 	}
 }
 
-func TestApplicationDefaultPreservesExplicitService(t *testing.T) {
-	app := Application{
-		Name:      "dox",
-		Namespace: "opendox",
-		Runtime:   RuntimeCollector,
-		Service:   "amazon-collector",
-		Env:       EnvProd,
-	}
-
-	if err := app.Default(); err != nil {
+func TestServiceDefaultDoesNotInventNameWithoutRuntime(t *testing.T) {
+	application := Application{}
+	if err := application.Default(); err != nil {
 		t.Fatalf("default application: %v", err)
 	}
-	if app.Service != "amazon-collector" {
-		t.Fatalf("expected explicit service to remain, got %q", app.Service)
+
+	service := Service{}
+	if err := service.Default(application, System{}); err != nil {
+		t.Fatalf("default service: %v", err)
 	}
-	if err := app.Validate(); err != nil {
-		t.Fatalf("validate application: %v", err)
+	if service.Namespace != "dox" {
+		t.Fatalf("expected service namespace from application name, got %q", service.Namespace)
+	}
+	if service.Name != "" {
+		t.Fatalf("expected service name to remain empty without runtime, got %q", service.Name)
+	}
+	if err := service.Validate(); !hasValidationField(err, "Service.name", "required") {
+		t.Fatalf("expected required service name validation error, got %v", err)
 	}
 }
 
-func TestApplicationValidateRejectsInvalidRuntime(t *testing.T) {
-	app := validApplication()
-	app.Runtime = Runtime("worker")
+func TestServiceDefaultPreservesExplicitName(t *testing.T) {
+	application := Application{Name: "dox"}
+	system := System{Runtime: RuntimeServer}
+	service := Service{Name: "iam"}
 
-	if err := app.Validate(); !hasValidationField(err, "Application.runtime", "dox_runtime") {
+	if err := service.Default(application, system); err != nil {
+		t.Fatalf("default service: %v", err)
+	}
+	if service.Namespace != "dox" {
+		t.Fatalf("expected service namespace from application name, got %q", service.Namespace)
+	}
+	if service.Name != "iam" {
+		t.Fatalf("expected explicit service name to remain, got %q", service.Name)
+	}
+	if err := service.Validate(); err != nil {
+		t.Fatalf("validate service: %v", err)
+	}
+}
+
+func TestSystemValidateRejectsInvalidRuntime(t *testing.T) {
+	system := System{Runtime: Runtime("worker")}
+
+	if err := system.Validate(); !hasValidationField(err, "System.runtime", "dox_runtime") {
 		t.Fatalf("expected invalid runtime validation error, got %v", err)
 	}
 }
 
-func TestApplicationValidateRejectsInvalidEnv(t *testing.T) {
-	app := validApplication()
-	app.Env = Env("production")
+func TestDeploymentValidateRejectsInvalidEnv(t *testing.T) {
+	deployment := Deployment{Env: Env("production")}
 
-	if err := app.Validate(); !hasValidationField(err, "Application.env", "dox_env") {
+	if err := deployment.Validate(); !hasValidationField(err, "Deployment.env", "dox_env") {
 		t.Fatalf("expected invalid env validation error, got %v", err)
 	}
 }
 
-func TestApplicationValidateRejectsInvalidIdentifierSyntax(t *testing.T) {
-	app := validApplication()
-	app.Service = "Dox Server"
+func TestServiceValidateRejectsInvalidNamespaceAndName(t *testing.T) {
+	service := Service{
+		Namespace:  "Dox",
+		Name:       "iam-service-",
+		InstanceID: "server-pod-1",
+	}
 
-	if err := app.Validate(); !hasValidationField(err, "Application.service", "dox_kebab") {
-		t.Fatalf("expected invalid service validation error, got %v", err)
+	err := service.Validate()
+	if !hasValidationField(err, "Service.namespace", "dox_kebab") {
+		t.Fatalf("expected invalid namespace validation error, got %v", err)
+	}
+	if !hasValidationField(err, "Service.name", "dox_kebab") {
+		t.Fatalf("expected invalid service name validation error, got %v", err)
 	}
 }
 
-func TestApplicationValidateRejectsTrailingHyphen(t *testing.T) {
-	app := validApplication()
-	app.Service = "dox-server-"
+func TestServicesMayShareInstanceID(t *testing.T) {
+	services := []Service{
+		{Namespace: "dox", Name: "iam", InstanceID: "server-pod-abc"},
+		{Namespace: "dox", Name: "audit", InstanceID: "server-pod-abc"},
+	}
 
-	if err := app.Validate(); !hasValidationField(err, "Application.service", "dox_kebab") {
-		t.Fatalf("expected invalid service validation error, got %v", err)
+	for _, service := range services {
+		if err := service.Validate(); err != nil {
+			t.Fatalf("validate service %+v: %v", service, err)
+		}
+	}
+}
+
+func TestServiceValidateRejectsInvalidInstanceID(t *testing.T) {
+	service := Service{
+		Namespace:  "dox",
+		Name:       "iam",
+		InstanceID: "server-pod-",
+	}
+
+	if err := service.Validate(); !hasValidationField(err, "Service.instance_id", "dox_identifier") {
+		t.Fatalf("expected invalid instance_id validation error, got %v", err)
+	}
+}
+
+func TestOrganizationValidateRejectsInvalidGovernanceIdentifier(t *testing.T) {
+	organization := Organization{
+		Name:       "opendox",
+		Owner:      "Platform Team",
+		CostCenter: "dox-core",
+		Project:    "dox",
+	}
+
+	if err := organization.Validate(); !hasValidationField(err, "Organization.owner", "dox_identifier") {
+		t.Fatalf("expected invalid owner validation error, got %v", err)
 	}
 }
 
@@ -140,16 +220,6 @@ func TestRuntimeAndEnvValidity(t *testing.T) {
 	}
 	if Env("stage").IsValid() {
 		t.Fatal("did not expect unsupported env to be valid")
-	}
-}
-
-func validApplication() Application {
-	return Application{
-		Name:      "dox",
-		Namespace: "opendox",
-		Runtime:   RuntimeServer,
-		Service:   "dox-server",
-		Env:       EnvDev,
 	}
 }
 

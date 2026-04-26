@@ -18,7 +18,7 @@
  * @File    : deployment_test.go
  * @Author  : Frost Leo <frostleo.dev@gmail.com>
  * @Created : 2026-04-25
- * @Modified: 2026-04-25
+ * @Modified: 2026-04-26
  */
 
 package setting
@@ -31,6 +31,9 @@ func TestDeploymentAllowsEmptyIdentity(t *testing.T) {
 	if err := deployment.Default(); err != nil {
 		t.Fatalf("default deployment: %v", err)
 	}
+	if deployment.Env != EnvDev {
+		t.Fatalf("expected default env dev, got %q", deployment.Env)
+	}
 	if err := deployment.Validate(); err != nil {
 		t.Fatalf("validate empty deployment: %v", err)
 	}
@@ -38,10 +41,11 @@ func TestDeploymentAllowsEmptyIdentity(t *testing.T) {
 
 func TestDeploymentValidateAcceptsStableIdentifiers(t *testing.T) {
 	deployment := Deployment{
-		Region:     "us-east-1",
-		Zone:       "us-east-1a",
-		Cluster:    "dox-prod-1",
-		InstanceID: "dox-server-7f9d4c9b6d-x2m9k",
+		Env:          EnvProd,
+		Region:       "us-east-1",
+		Zone:         "us-east-1a",
+		Cluster:      "dox-prod-1",
+		K8sNamespace: "dox-prod",
 	}
 
 	if err := deployment.Validate(); err != nil {
@@ -51,10 +55,11 @@ func TestDeploymentValidateAcceptsStableIdentifiers(t *testing.T) {
 
 func TestDeploymentValidateRejectsInvalidIdentifier(t *testing.T) {
 	deployment := Deployment{
-		Region:     "us-east-1",
-		Zone:       "us-east-1a",
-		Cluster:    "Dox Prod",
-		InstanceID: "dox-server-1",
+		Env:          EnvProd,
+		Region:       "us-east-1",
+		Zone:         "us-east-1a",
+		Cluster:      "Dox Prod",
+		K8sNamespace: "dox-prod",
 	}
 
 	if err := deployment.Validate(); !hasValidationField(err, "Deployment.cluster", "dox_identifier") {
@@ -62,12 +67,13 @@ func TestDeploymentValidateRejectsInvalidIdentifier(t *testing.T) {
 	}
 }
 
-func TestDeploymentValidateRejectsTrailingSeparator(t *testing.T) {
+func TestDeploymentValidateRejectsTrailingNamespaceSeparator(t *testing.T) {
 	deployment := Deployment{
-		InstanceID: "dox-server-",
+		Env:          EnvProd,
+		K8sNamespace: "dox-prod-",
 	}
 
-	if err := deployment.Validate(); !hasValidationField(err, "Deployment.instance_id", "dox_identifier") {
-		t.Fatalf("expected invalid instance_id validation error, got %v", err)
+	if err := deployment.Validate(); !hasValidationField(err, "Deployment.k8s_namespace", "dox_identifier") {
+		t.Fatalf("expected invalid k8s_namespace validation error, got %v", err)
 	}
 }

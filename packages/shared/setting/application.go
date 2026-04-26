@@ -18,7 +18,7 @@
  * @File    : application.go
  * @Author  : Frost Leo <frostleo.dev@gmail.com>
  * @Created : 2026-04-25
- * @Modified: 2026-04-25
+ * @Modified: 2026-04-26
  */
 
 package setting
@@ -26,10 +26,10 @@ package setting
 import "errors"
 
 const (
-	// DefaultApplicationName is the shared Dox application family name.
+	// DefaultOrganizationName is the default Dox organization identity.
+	DefaultOrganizationName = "opendox"
+	// DefaultApplicationName is the shared Dox product or application family name.
 	DefaultApplicationName = "dox"
-	// DefaultApplicationNamespace is the shared Dox service namespace.
-	DefaultApplicationNamespace = "opendox"
 )
 
 // Runtime identifies one Dox runtime system.
@@ -80,16 +80,36 @@ func (e Env) IsValid() bool {
 	}
 }
 
-// Application describes the shared identity of a Dox runtime process.
-type Application struct {
-	Name      string  `json:"name" yaml:"name" mapstructure:"name" validate:"required,dox_kebab"`
-	Namespace string  `json:"namespace" yaml:"namespace" mapstructure:"namespace" validate:"required,dox_kebab"`
-	Runtime   Runtime `json:"runtime" yaml:"runtime" mapstructure:"runtime" validate:"required,dox_runtime"`
-	Service   string  `json:"service" yaml:"service" mapstructure:"service" validate:"required,dox_kebab"`
-	Env       Env     `json:"env" yaml:"env" mapstructure:"env" validate:"required,dox_env"`
+// Organization describes shared ownership and governance identity.
+type Organization struct {
+	Name       string `json:"name" yaml:"name" mapstructure:"name" validate:"required,dox_identifier"`
+	Owner      string `json:"owner" yaml:"owner" mapstructure:"owner" validate:"omitempty,dox_identifier"`
+	CostCenter string `json:"cost_center" yaml:"cost_center" mapstructure:"cost_center" validate:"omitempty,dox_identifier"`
+	Project    string `json:"project" yaml:"project" mapstructure:"project" validate:"omitempty,dox_identifier"`
 }
 
-// Default fills stable shared application identity defaults.
+// Default fills stable shared organization defaults.
+func (o *Organization) Default() error {
+	if o == nil {
+		return errors.New("setting: organization must not be nil")
+	}
+	if o.Name == "" {
+		o.Name = DefaultOrganizationName
+	}
+	return nil
+}
+
+// Validate verifies that organization identity fields use stable syntax.
+func (o Organization) Validate() error {
+	return Validate(o)
+}
+
+// Application describes the product or application family identity.
+type Application struct {
+	Name string `json:"name" yaml:"name" mapstructure:"name" validate:"required,dox_kebab"`
+}
+
+// Default fills stable shared application defaults.
 func (a *Application) Default() error {
 	if a == nil {
 		return errors.New("setting: application must not be nil")
@@ -97,19 +117,54 @@ func (a *Application) Default() error {
 	if a.Name == "" {
 		a.Name = DefaultApplicationName
 	}
-	if a.Namespace == "" {
-		a.Namespace = DefaultApplicationNamespace
-	}
-	if a.Env == "" {
-		a.Env = EnvDev
-	}
-	if a.Service == "" && a.Name != "" && a.Runtime != "" {
-		a.Service = a.Name + "-" + string(a.Runtime)
+	return nil
+}
+
+// Validate verifies that application identity fields use stable syntax.
+func (a Application) Validate() error {
+	return Validate(a)
+}
+
+// System describes the Dox core system identity for a runtime.
+type System struct {
+	Runtime Runtime `json:"runtime" yaml:"runtime" mapstructure:"runtime" validate:"required,dox_runtime"`
+}
+
+// Default is currently a no-op because Dox runtime identity must be explicit.
+func (s *System) Default() error {
+	if s == nil {
+		return errors.New("setting: system must not be nil")
 	}
 	return nil
 }
 
-// Validate verifies that application identity fields use supported Dox values.
-func (a Application) Validate() error {
-	return Validate(a)
+// Validate verifies that system identity fields use supported Dox values.
+func (s System) Validate() error {
+	return Validate(s)
+}
+
+// Service describes one logical service identity.
+type Service struct {
+	Namespace  string `json:"namespace" yaml:"namespace" mapstructure:"namespace" validate:"required,dox_kebab"`
+	Name       string `json:"name" yaml:"name" mapstructure:"name" validate:"required,dox_kebab"`
+	InstanceID string `json:"instance_id" yaml:"instance_id" mapstructure:"instance_id" validate:"omitempty,dox_identifier"`
+}
+
+// Default fills service identity defaults from the application and system identity.
+func (s *Service) Default(application Application, system System) error {
+	if s == nil {
+		return errors.New("setting: service must not be nil")
+	}
+	if s.Namespace == "" {
+		s.Namespace = application.Name
+	}
+	if s.Name == "" && system.Runtime != "" {
+		s.Name = string(system.Runtime)
+	}
+	return nil
+}
+
+// Validate verifies that service identity fields use stable syntax.
+func (s Service) Validate() error {
+	return Validate(s)
 }

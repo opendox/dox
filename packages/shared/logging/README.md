@@ -25,7 +25,7 @@
 
 `packages/shared/logging` defines the shared Dox logging vocabulary and configuration contract.
 
-This package maps the shared Dox logging configuration to zap and zapcore primitives for runtime integrations. It does not make zap the business logging API, and it does not initialize lumberjack, OpenTelemetry SDK providers, or the Dox logger facade.
+This package maps the shared Dox logging configuration to zap, zapcore, and lumberjack primitives for runtime integrations. It does not make zap the business logging API, and it does not initialize OpenTelemetry SDK providers or the Dox logger facade.
 
 ## Boundary
 
@@ -42,8 +42,8 @@ The package owns stable names and configuration shapes for:
 The package must not:
 
 - expose `*zap.Logger` or `zap.Field` as a business API;
-- import lumberjack or OpenTelemetry SDK packages in the zap core base;
-- implement file rotation, OTLP, or async queues in the zap core base;
+- expose lumberjack as a business logging API;
+- implement OTLP or async queues in the zap core base;
 - wire logging into server, scheduler, collector, compute, IAM, or HTTP middleware.
 
 ## Zap Core Base
@@ -54,11 +54,14 @@ The zap core base provides implementation helpers for runtime bootstrap code:
 - symbolic encoder mapping for level, time, duration, caller, and logger name encoders;
 - `zap.Config` mapping with sampling disabled unless explicitly enabled;
 - enabled console and JSON core construction through zap output paths;
+- JSONL file core construction with optional lumberjack v2 rotation;
 - zap options for development mode, caller, stacktrace, error output, and initial fields.
 
 `DisableErrorVerbose` is applied by the core base so `zap.Error` fields keep the basic error string without adding zap's extra `errorVerbose` field.
 
-File core declarations currently use zap's basic output path support. Rotation fields stay in the configuration contract for the follow-up lumberjack v2 sink issue.
+File core declarations with `rotation.driver: lumberjack` use `gopkg.in/natefinch/lumberjack.v2`. The writer assumes only one process writes to the configured files on the same machine. Dox runtime deployment must avoid sharing the same rotating file path across multiple processes.
+
+File core declarations with `rotation.driver: none` use zap's basic file output path support without an internal rotator. `external` and `logrotate` remain configuration contract values for future runtime integration and are not supported by the zap file sink yet.
 
 ## Resource
 
@@ -245,7 +248,6 @@ cores:
 
 Separate issues should implement:
 
-- JSONL file sink and lumberjack v2 rotation;
 - Dox logger API and context correlation;
 - OpenTelemetry SDK base;
 - server setting and bootstrap integration;

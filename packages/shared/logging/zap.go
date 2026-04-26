@@ -30,6 +30,7 @@ import (
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 )
 
 var zapLevelEncoders = map[string]zapcore.LevelEncoder{
@@ -244,17 +245,18 @@ func newZapCoreFromNormalized(config Config, rootLevel zap.AtomicLevel) (zapcore
 
 	cores := make([]zapcore.Core, 0, len(config.Cores))
 	closeFns := make([]func(), 0, len(config.Cores))
-	for _, coreConfig := range config.Cores {
+	for index, coreConfig := range config.Cores {
 		if !boolValue(coreConfig.Enabled) {
 			continue
 		}
+		field := indexField("cores", index)
 
 		encoder, err := newZapEncoder(coreConfig.Encoding, encoderConfig)
 		if err != nil {
 			closeZapSinks(closeFns)
 			return nil, 0, nil, fmt.Errorf("logging: build zap core %q: %w", coreConfig.Name, err)
 		}
-		writer, closeWriter, err := zap.Open(coreConfig.OutputPaths...)
+		writer, closeWriter, err := newZapCoreWriter(coreConfig, field)
 		if err != nil {
 			closeZapSinks(closeFns)
 			return nil, 0, nil, fmt.Errorf("logging: open zap core %q output paths: %w", coreConfig.Name, err)
@@ -296,6 +298,54 @@ func newZapEncoder(encoding Encoding, config zapcore.EncoderConfig) (zapcore.Enc
 	default:
 		return nil, validationError("encoding", "encoding is not supported")
 	}
+}
+
+func newZapCoreWriter(config CoreConfig, field string) (zapcore.WriteSyncer, func(), error) {
+	if config.Type != CoreTypeFile {
+		return openZapPaths(config.OutputPaths)
+	}
+
+	switch config.Rotation.Driver {
+	case RotationDriverLumberjack:
+		if !boolValue(config.Rotation.Enabled) {
+			return openZapPaths(config.OutputPaths)
+		}
+		logger, err := newLumberjackLogger(config, field)
+		if err != nil {
+			return nil, nil, err
+		}
+		return zapcore.Lock(zapcore.AddSync(logger)), func() {
+			_ = logger.Close()
+		}, nil
+	case RotationDriverNone:
+		return openZapPaths(config.OutputPaths)
+	default:
+		return nil, nil, validationError(field+".rotation.driver", "rotation driver is not supported by the zap file sink")
+	}
+}
+
+func openZapPaths(paths []string) (zapcore.WriteSyncer, func(), error) {
+	writer, closeWriter, err := zap.Open(paths...)
+	if err != nil {
+		return nil, nil, err
+	}
+	return writer, closeWriter, nil
+}
+
+func newLumberjackLogger(config CoreConfig, field string) (*lumberjack.Logger, error) {
+	if len(config.OutputPaths) != 1 {
+		return nil, validationError(field+".output_paths", "lumberjack file core requires exactly one output path")
+	}
+
+	rotation := config.Rotation
+	return &lumberjack.Logger{
+		Filename:   config.OutputPaths[0],
+		MaxSize:    rotation.MaxSizeMB,
+		MaxBackups: rotation.MaxBackups,
+		MaxAge:     rotation.MaxAgeDays,
+		Compress:   boolValue(rotation.Compress),
+		LocalTime:  boolValue(rotation.LocalTime),
+	}, nil
 }
 
 func newZapSamplingConfig(config SamplingConfig) *zap.SamplingConfig {

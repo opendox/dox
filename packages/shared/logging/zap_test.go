@@ -24,6 +24,7 @@
 package logging
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -336,6 +337,220 @@ func TestNewZapCoreBaseSkipsDisabledCores(t *testing.T) {
 	}
 }
 
+func TestNewLumberjackLoggerMapsRotationConfig(t *testing.T) {
+	coreConfig := CoreConfig{
+		Name:        "service-file",
+		Enabled:     boolPtr(true),
+		Type:        CoreTypeFile,
+		Level:       LevelInfo,
+		Encoding:    EncodingJSON,
+		OutputPaths: []string{"/var/log/dox/service.jsonl"},
+		Datasets:    []string{"*"},
+		Rotation: RotationConfig{
+			Driver:     RotationDriverLumberjack,
+			Enabled:    boolPtr(true),
+			MaxSizeMB:  64,
+			MaxBackups: 7,
+			MaxAgeDays: 5,
+			Compress:   boolPtr(true),
+			LocalTime:  boolPtr(true),
+		},
+	}
+
+	logger, err := newLumberjackLogger(coreConfig, "cores[0]")
+	if err != nil {
+		t.Fatalf("map lumberjack logger: %v", err)
+	}
+
+	if logger.Filename != "/var/log/dox/service.jsonl" ||
+		logger.MaxSize != 64 ||
+		logger.MaxBackups != 7 ||
+		logger.MaxAge != 5 ||
+		!logger.Compress ||
+		!logger.LocalTime {
+		t.Fatalf("expected lumberjack config to map, got %+v", logger)
+	}
+}
+
+func TestNewZapCoreBaseWritesLumberjackJSONLFileCore(t *testing.T) {
+	tempDir := t.TempDir()
+	jsonPath := filepath.Join(tempDir, "service.jsonl")
+
+	base, err := NewZapCoreBase(Config{
+		Zap: ZapConfig{
+			DisableCaller:     true,
+			DisableStacktrace: true,
+			ErrorOutputPaths:  []string{filepath.Join(tempDir, "errors.log")},
+		},
+		Cores: []CoreConfig{
+			{
+				Name:        "service-file",
+				Enabled:     boolPtr(true),
+				Type:        CoreTypeFile,
+				Level:       LevelInfo,
+				Encoding:    EncodingJSON,
+				OutputPaths: []string{jsonPath},
+				Datasets:    []string{"*"},
+				Rotation: RotationConfig{
+					Driver:     RotationDriverLumberjack,
+					Enabled:    boolPtr(true),
+					MaxSizeMB:  1,
+					MaxBackups: 2,
+					MaxAgeDays: 3,
+					Compress:   boolPtr(false),
+					LocalTime:  boolPtr(false),
+				},
+			},
+		},
+	})
+	if err != nil {
+		t.Fatalf("build zap core base: %v", err)
+	}
+	t.Cleanup(base.Close)
+
+	logger := zap.New(base.Core, base.Options()...)
+	logger.Info("login accepted", zap.String("event.name", "iam.login.accepted"))
+	_ = logger.Sync()
+	base.Close()
+
+	entries := readJSONLines(t, jsonPath)
+	if len(entries) != 1 {
+		t.Fatalf("expected one JSONL entry, got %d: %#v", len(entries), entries)
+	}
+	if entries[0]["message"] != "login accepted" || entries[0]["event.name"] != "iam.login.accepted" {
+		t.Fatalf("expected JSONL fields to be written, got %#v", entries[0])
+	}
+	if base.close != nil {
+		t.Fatal("expected ZapCoreBase.Close to clear the close function")
+	}
+}
+
+func TestNewZapCoreBaseWritesNoRotationFileCore(t *testing.T) {
+	tempDir := t.TempDir()
+	jsonPath := filepath.Join(tempDir, "service.jsonl")
+
+	base, err := NewZapCoreBase(Config{
+		Zap: ZapConfig{
+			DisableCaller:     true,
+			DisableStacktrace: true,
+			ErrorOutputPaths:  []string{filepath.Join(tempDir, "errors.log")},
+		},
+		Cores: []CoreConfig{
+			{
+				Name:        "service-file",
+				Enabled:     boolPtr(true),
+				Type:        CoreTypeFile,
+				Level:       LevelInfo,
+				Encoding:    EncodingJSON,
+				OutputPaths: []string{jsonPath},
+				Datasets:    []string{"*"},
+				Rotation: RotationConfig{
+					Driver: RotationDriverNone,
+				},
+			},
+		},
+	})
+	if err != nil {
+		t.Fatalf("build zap core base: %v", err)
+	}
+	t.Cleanup(base.Close)
+
+	logger := zap.New(base.Core, base.Options()...)
+	logger.Info("no rotation")
+	_ = logger.Sync()
+	base.Close()
+
+	entries := readJSONLines(t, jsonPath)
+	if len(entries) != 1 || entries[0]["message"] != "no rotation" {
+		t.Fatalf("expected no-rotation JSONL entry, got %#v", entries)
+	}
+}
+
+func TestNewZapCoreBaseRejectsUnsupportedFileRotationDriver(t *testing.T) {
+	tempDir := t.TempDir()
+
+	_, err := NewZapCoreBase(Config{
+		Zap: ZapConfig{
+			DisableCaller:     true,
+			DisableStacktrace: true,
+			ErrorOutputPaths:  []string{filepath.Join(tempDir, "errors.log")},
+		},
+		Cores: []CoreConfig{
+			{
+				Name:        "service-file",
+				Enabled:     boolPtr(true),
+				Type:        CoreTypeFile,
+				Level:       LevelInfo,
+				Encoding:    EncodingJSON,
+				OutputPaths: []string{filepath.Join(tempDir, "service.jsonl")},
+				Datasets:    []string{"*"},
+				Rotation: RotationConfig{
+					Driver: RotationDriverExternal,
+				},
+			},
+		},
+	})
+	if !hasValidationField(err, "cores[0].rotation.driver") {
+		t.Fatalf("expected unsupported rotation driver validation error, got %v", err)
+	}
+}
+
+func TestNewZapCoreBaseRejectsInvalidLumberjackOutputPaths(t *testing.T) {
+	tempDir := t.TempDir()
+
+	tests := []struct {
+		name        string
+		outputPaths []string
+		field       string
+	}{
+		{
+			name:        "empty",
+			outputPaths: []string{""},
+			field:       "cores[0].output_paths[0]",
+		},
+		{
+			name:        "multiple",
+			outputPaths: []string{filepath.Join(tempDir, "first.jsonl"), filepath.Join(tempDir, "second.jsonl")},
+			field:       "cores[0].output_paths",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := NewZapCoreBase(Config{
+				Zap: ZapConfig{
+					DisableCaller:     true,
+					DisableStacktrace: true,
+					ErrorOutputPaths:  []string{filepath.Join(tempDir, "errors.log")},
+				},
+				Cores: []CoreConfig{
+					{
+						Name:        "service-file",
+						Enabled:     boolPtr(true),
+						Type:        CoreTypeFile,
+						Level:       LevelInfo,
+						Encoding:    EncodingJSON,
+						OutputPaths: tt.outputPaths,
+						Datasets:    []string{"*"},
+						Rotation: RotationConfig{
+							Driver:     RotationDriverLumberjack,
+							Enabled:    boolPtr(true),
+							MaxSizeMB:  1,
+							MaxBackups: 1,
+							MaxAgeDays: 1,
+							Compress:   boolPtr(false),
+							LocalTime:  boolPtr(false),
+						},
+					},
+				},
+			})
+			if !hasValidationField(err, tt.field) {
+				t.Fatalf("expected validation field %s, got %v", tt.field, err)
+			}
+		})
+	}
+}
+
 func TestNewZapCoreBaseSuppressesVerboseErrors(t *testing.T) {
 	tempDir := t.TempDir()
 	jsonPath := filepath.Join(tempDir, "service.jsonl")
@@ -439,6 +654,25 @@ func readFile(t *testing.T, path string) string {
 		t.Fatalf("read %s: %v", path, err)
 	}
 	return string(content)
+}
+
+func readJSONLines(t *testing.T, path string) []map[string]any {
+	t.Helper()
+	text := strings.TrimSpace(readFile(t, path))
+	if text == "" {
+		t.Fatalf("expected %s to contain JSONL entries", path)
+	}
+
+	lines := strings.Split(text, "\n")
+	entries := make([]map[string]any, 0, len(lines))
+	for index, line := range lines {
+		entry := map[string]any{}
+		if err := json.Unmarshal([]byte(line), &entry); err != nil {
+			t.Fatalf("parse JSONL line %d from %s: %v\n%s", index, path, err, line)
+		}
+		entries = append(entries, entry)
+	}
+	return entries
 }
 
 type verboseTestError struct{}

@@ -170,7 +170,7 @@ type ResourceConfig struct {
 	ServiceVersion string `json:"service_version" yaml:"service_version" mapstructure:"service_version"`
 }
 
-// ZapConfig mirrors the zap.Config shape without importing zap.
+// ZapConfig mirrors the zap.Config shape with Dox-owned configuration fields.
 type ZapConfig struct {
 	Level               Level          `json:"level" yaml:"level" mapstructure:"level"`
 	Development         bool           `json:"development" yaml:"development" mapstructure:"development"`
@@ -204,7 +204,7 @@ type EncoderConfig struct {
 	ConsoleSeparator string `json:"console_separator" yaml:"console_separator" mapstructure:"console_separator"`
 }
 
-// SamplingConfig mirrors zap sampling configuration without importing zap.
+// SamplingConfig mirrors zap sampling configuration with Dox-owned toggles.
 type SamplingConfig struct {
 	Enabled     bool `json:"enabled" yaml:"enabled" mapstructure:"enabled"`
 	Initial     int  `json:"initial" yaml:"initial" mapstructure:"initial"`

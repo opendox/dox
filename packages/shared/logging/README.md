@@ -25,7 +25,7 @@
 
 `packages/shared/logging` defines the shared Dox logging vocabulary and configuration contract.
 
-This package does not initialize zap, lumberjack, OpenTelemetry SDK providers, runtime loggers, or concrete sinks. Those belong to follow-up implementation work.
+This package maps the shared Dox logging configuration to zap and zapcore primitives for runtime integrations. It does not make zap the business logging API, and it does not initialize lumberjack, OpenTelemetry SDK providers, or the Dox logger facade.
 
 ## Boundary
 
@@ -41,10 +41,24 @@ The package owns stable names and configuration shapes for:
 
 The package must not:
 
-- expose `*zap.Logger`, `zap.Field`, or `zap.Config` as a business API;
-- import zap, lumberjack, or OpenTelemetry SDK packages in this first stage;
-- write logs to console, files, stdout, stderr, OTLP, or async queues;
+- expose `*zap.Logger` or `zap.Field` as a business API;
+- import lumberjack or OpenTelemetry SDK packages in the zap core base;
+- implement file rotation, OTLP, or async queues in the zap core base;
 - wire logging into server, scheduler, collector, compute, IAM, or HTTP middleware.
+
+## Zap Core Base
+
+The zap core base provides implementation helpers for runtime bootstrap code:
+
+- Dox `Level` to `zapcore.Level` and `zap.AtomicLevel` mapping;
+- symbolic encoder mapping for level, time, duration, caller, and logger name encoders;
+- `zap.Config` mapping with sampling disabled unless explicitly enabled;
+- enabled console and JSON core construction through zap output paths;
+- zap options for development mode, caller, stacktrace, error output, and initial fields.
+
+`DisableErrorVerbose` is applied by the core base so `zap.Error` fields keep the basic error string without adding zap's extra `errorVerbose` field.
+
+File core declarations currently use zap's basic output path support. Rotation fields stay in the configuration contract for the follow-up lumberjack v2 sink issue.
 
 ## Resource
 
@@ -231,7 +245,6 @@ cores:
 
 Separate issues should implement:
 
-- zap core base;
 - JSONL file sink and lumberjack v2 rotation;
 - Dox logger API and context correlation;
 - OpenTelemetry SDK base;

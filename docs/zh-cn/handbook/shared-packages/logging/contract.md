@@ -23,7 +23,7 @@
 
 # Shared Logging 契约
 
-本页回答调用方可以从 `packages/shared/logging` 依赖什么，哪些行为目前只是配置形状，以及哪些 error 属于包契约。
+Shared logging 契约定义调用方可以从 `packages/shared/logging` 依赖什么，哪些行为目前只是配置形状，以及哪些 error 属于包边界。
 
 ## Ownership Contract
 
@@ -150,7 +150,7 @@ Correlation helpers 提供简单 overlay semantics：
 - field-level redaction execution；
 - dataset-based core routing。
 
-## 相关参考
+## 相关页面
 
 - [模型](model.md)
 - [Runtime 边界](runtime-boundary.md)

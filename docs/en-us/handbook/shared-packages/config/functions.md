@@ -23,7 +23,7 @@
 
 # Shared Config Functions and API
 
-This page lists the exported API surface that package consumers can rely on. It is not a replacement for Go documentation, but it explains how each exported symbol fits into the package contract.
+The exported API surface is grouped by loader entry points, pipeline extension points, helpers, and caller obligations.
 
 ## Load Entry Points
 
@@ -173,3 +173,9 @@ Every consumer must own:
 - any hot reload, remote configuration, or watcher lifecycle.
 
 The shared package gives a deterministic loading primitive. It does not replace runtime configuration design.
+
+## Related Pages
+
+- [Shared config package manual](README.md)
+- [Shared config contract](contract.md)
+- [Shared config pipeline](pipeline.md)

@@ -21,18 +21,18 @@
   @Modified: 2026-04-27
 -->
 
-# Shared Logging 包参考
+# Shared Logging 包手册
 
 `packages/shared/logging` 定义 Dox 共享 logging model、configuration contract、logger facade、zap core helpers 和 OpenTelemetry SDK helpers。
 
-这份参考文档面向正式工程手册引用。它不是线性教程；每个页面都是自包含引用页，回答一种实现问题。
+这份手册定义 runtime packages 和系统工程手册可引用的包级 logging 契约。
 
 > [!IMPORTANT]
 > Runtime packages 可以引用这个包，但 runtime bootstrap 仍然负责 logger construction、OpenTelemetry global installation、HTTP middleware wiring、scheduler/collector/compute integration，以及部署相关 output policy。
 
-## Reference Map
+## 手册页面
 
-| 页面 | 适合用来查询 |
+| 页面 | 包问题 |
 | --- | --- |
 | [契约](contract.md) | 包保证什么、不实现什么，以及 config validation/error semantics。 |
 | [模型](model.md) | Resource、correlation、event、node、tags、fields 在 log records 中如何成形。 |
@@ -108,18 +108,18 @@ cores:
 > [!WARNING]
 > `logs/${service.namespace}-${service.name}.jsonl` 当前只是字符串默认值，不是已渲染模板。真正获得动态 service-specific path 前，runtime bootstrap 或后续 package change 必须负责渲染。
 
-## 正式文档引用方式
+## 系统手册引用
 
-系统工程手册应该链接到这份参考，而不是复制包行为。适合引用的目标包括：
+系统工程手册应引用本包手册中的这些内容：
 
 - `logging.Config` defaults 和 validation rules；
 - resource/correlation/event fields 的 log record model；
 - zap 和 OpenTelemetry runtime boundary；
 - explicit unsupported behavior matrix。
 
-Web、Scheduling、Collection、Computation 的手册应该单独记录自己的 bootstrap choices，例如 output paths、global provider installation、middleware correlation 和 deployment collectors。
+Web、Scheduling、Collection、Computation 手册应单独记录自己的 bootstrap choices，例如 output paths、global provider installation、middleware correlation 和 deployment collectors。
 
-## 相关参考
+## 相关包手册
 
 - [Shared config 包](../config/README.md)
 - [Shared setting 包](../setting/README.md)

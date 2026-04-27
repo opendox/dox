@@ -23,7 +23,7 @@
 
 # Shared Logging Functions and API
 
-This page answers which exported logging APIs callers can use and what each API is for.
+The shared logging API surface defines the exported types, constructors, helpers, constants, and caller-facing behavior available from `packages/shared/logging`.
 
 ## Constants and Enums
 
@@ -147,7 +147,7 @@ defer logger.Sync()
 
 This sketch omits runtime policy such as path rendering, global OpenTelemetry installation, and shutdown orchestration.
 
-## Related References
+## Related Pages
 
 - [Contract](contract.md)
 - [Model](model.md)

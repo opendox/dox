@@ -21,14 +21,9 @@
   @Modified: 2026-04-27
 -->
 
-# 第 3 章：Shared Setting 函数与 API
+# Shared Setting 函数与 API
 
-| 上一章 | 上级 | 下一章 |
-| --- | --- | --- |
-| [第 2 章：模型](model.md) | [Shared setting 包](README.md) | 结束 |
-
-> [!NOTE]
-> 本章是这个包的 API reference。如果某个行为依赖模型语义，相关模型章节会在正文中链接。
+Shared setting API surface 包含 enum constants、fragment methods、validation helpers、error types，以及把 `packages/shared/setting` 组合进 runtime-owned aggregates 时的调用方责任。
 
 ## 常量
 
@@ -175,8 +170,8 @@ Bootstrap 可以提供 env、instance ID 或 region 等 seed values。Shared pac
 - 第三方 validator 实现不会作为 caller-facing error type 暴露。
 - 新增 runtime 或 environment value 会改变 shared validation semantics，应视为契约变更。
 
-## 导航
+## 相关页面
 
-| 上一章 | 上级 | 下一章 |
-| --- | --- | --- |
-| [第 2 章：模型](model.md) | [Shared setting 包](README.md) | 结束 |
+- [Shared setting 包手册](README.md)
+- [Shared setting 契约](contract.md)
+- [Shared setting 模型](model.md)

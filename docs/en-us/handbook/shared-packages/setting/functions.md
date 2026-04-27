@@ -21,14 +21,9 @@
   @Modified: 2026-04-27
 -->
 
-# Chapter 3: Shared Setting Functions and API
+# Shared Setting Functions and API
 
-| Previous | Up | Next |
-| --- | --- | --- |
-| [Chapter 2: Model](model.md) | [Shared setting package](README.md) | End |
-
-> [!NOTE]
-> This chapter is the API reference for the package. If a behavior depends on model meaning, the related model section is linked inline.
+The shared setting API surface includes enum constants, fragment methods, validation helpers, error types, and caller obligations for composing `packages/shared/setting` into runtime-owned aggregates.
 
 ## Constants
 
@@ -175,8 +170,8 @@ Every runtime consumer must own:
 - The third-party validator implementation is not exposed as the caller-facing error type.
 - Adding a new runtime or environment value changes shared validation semantics and should be treated as a contract change.
 
-## Navigation
+## Related Pages
 
-| Previous | Up | Next |
-| --- | --- | --- |
-| [Chapter 2: Model](model.md) | [Shared setting package](README.md) | End |
+- [Shared setting package manual](README.md)
+- [Shared setting contract](contract.md)
+- [Shared setting model](model.md)

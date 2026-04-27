@@ -21,14 +21,9 @@
   @Modified: 2026-04-27
 -->
 
-# Chapter 2: Shared Setting Model
+# Shared Setting Model
 
-| Previous | Up | Next |
-| --- | --- | --- |
-| [Chapter 1: Contract](contract.md) | [Shared setting package](README.md) | [Chapter 3: Functions and API](functions.md) |
-
-> [!NOTE]
-> This chapter describes data shape. For method behavior and exported helpers, continue to [Chapter 3](functions.md).
+The shared setting model describes the exported fragments, enum values, defaults, validation tags, and consumer relationship for `packages/shared/setting`. Method behavior and exported helpers are covered in [Functions and API](functions.md).
 
 ## Model Map
 
@@ -178,8 +173,8 @@ flowchart TD
 
 This diagram is a consumer example. The shared package still exports only independent fragments.
 
-## Navigation
+## Related Pages
 
-| Previous | Up | Next |
-| --- | --- | --- |
-| [Chapter 1: Contract](contract.md) | [Shared setting package](README.md) | [Chapter 3: Functions and API](functions.md) |
+- [Shared setting package manual](README.md)
+- [Shared setting contract](contract.md)
+- [Shared setting functions and API](functions.md)

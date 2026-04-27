@@ -21,18 +21,18 @@
   @Modified: 2026-04-27
 -->
 
-# Shared Logging Package Reference
+# Shared Logging Package Manual
 
 `packages/shared/logging` defines the shared Dox logging model, configuration contract, logger facade, zap core helpers, and OpenTelemetry SDK helpers.
 
-This reference is designed for formal engineering manuals to link into. It is not a linear tutorial. Each page is self-contained and answers a specific kind of implementation question.
+This manual defines the package-level logging contract for runtime packages and system engineering manuals.
 
 > [!IMPORTANT]
 > Runtime packages may reference this package, but runtime bootstrap still owns logger construction, OpenTelemetry global installation, HTTP middleware wiring, scheduler/collector/compute integration, and deployment-specific output policy.
 
-## Reference Map
+## Manual Pages
 
-| Page | Use it when you need to know |
+| Page | Package Question |
 | --- | --- |
 | [Contract](contract.md) | What the package guarantees, what it does not implement, and how config validation/error semantics work. |
 | [Model](model.md) | How resource, correlation, event, node, tags, and fields should be shaped in log records. |
@@ -108,18 +108,18 @@ cores:
 > [!WARNING]
 > `logs/${service.namespace}-${service.name}.jsonl` is currently a string default, not a rendered template. Runtime bootstrap or a later package change must render it before a dynamic service-specific path exists.
 
-## Formal Documentation Use
+## System Manual References
 
-System manuals should link to this reference instead of copying package behavior. Good link targets include:
+System engineering manuals should reference this package manual for:
 
 - `logging.Config` defaults and validation rules;
 - the log record model for resource/correlation/event fields;
 - the zap and OpenTelemetry runtime boundary;
 - the explicit unsupported behavior matrix.
 
-Manuals for Web, Scheduling, Collection, and Computation should document their own bootstrap choices separately, such as output paths, global provider installation, middleware correlation, and deployment collectors.
+Web, Scheduling, Collection, and Computation manuals should document their own bootstrap choices separately, such as output paths, global provider installation, middleware correlation, and deployment collectors.
 
-## Related References
+## Related Package Manuals
 
 - [Shared config package](../config/README.md)
 - [Shared setting package](../setting/README.md)

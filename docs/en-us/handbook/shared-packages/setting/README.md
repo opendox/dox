@@ -21,46 +21,24 @@
   @Modified: 2026-04-27
 -->
 
-# Shared Setting Package Handbook
-
-| Previous | Up | Next |
-| --- | --- | --- |
-| [Shared config package](../config/README.md) | Shared packages | [Chapter 1: Contract](contract.md) |
-
-> [!NOTE]
-> This handbook is written as a short module book. Read it in order when adding a new runtime setting aggregate, and use the chapter links when returning for a specific contract or API detail.
+# Shared Setting Package Manual
 
 `packages/shared/setting` defines reusable Dox identity and deployment setting fragments. It is intentionally smaller than a runtime setting system: it provides shared fragments, defaults, enum constraints, and validation helpers that each runtime can compose into its own concrete aggregate.
 
-## Reading Path
+This manual defines the package-level setting fragment contract for runtime packages and system engineering manuals.
 
-```mermaid
-flowchart LR
-    A["Start: Overview"] --> B["Chapter 1: Contract"]
-    B --> C["Chapter 2: Model"]
-    C --> D["Chapter 3: Functions and API"]
-```
+> [!IMPORTANT]
+> Runtime packages may reference this package, but runtime bootstrap still owns concrete setting aggregates, runtime identity selection, runtime-specific defaults, cross-fragment validation, and subsystem-specific setting groups.
 
-1. [Chapter 1: Contract](contract.md) defines what the package owns, what it refuses to own, and how validation errors should be interpreted.
-2. [Chapter 2: Model](model.md) describes each shared fragment, its fields, defaults, and validation tags.
-3. [Chapter 3: Functions and API](functions.md) lists exported types, methods, constants, and caller obligations.
+## Manual Pages
 
-## Book Scope
-
-This handbook is the package-level reference for:
-
-- Dox runtime identity values;
-- Dox deployment environment values;
-- shared identity fragments such as `Organization`, `Application`, `System`, and `Service`;
-- shared deployment fragments such as `Deployment`;
-- Dox-owned validation tags and validation error shape;
-- the reuse boundary between shared fragments and runtime-owned setting aggregates.
-
-It is meant to be linked from the future Web, Scheduling, Collection, and Computation engineering manuals.
+| Page | Package Question |
+| --- | --- |
+| [Contract](contract.md) | Which behavior belongs to the shared package, which behavior belongs to runtime packages, and how validation errors should be interpreted. |
+| [Model](model.md) | Which fragments, enums, fields, defaults, and validation tags make up the shared setting model. |
+| [Functions and API](functions.md) | Which exported constants, types, methods, helpers, and caller obligations form the package API. |
 
 ## Package Position
-
-`packages/shared/setting` sits between generic config loading and runtime-specific setting aggregates.
 
 ```mermaid
 flowchart TD
@@ -72,63 +50,63 @@ flowchart TD
 
 The shared setting package is consumed by runtime packages, but it does not know which concrete runtime is being built. For example, `server/internal/setting` composes these fragments and then adds server-owned rules such as forcing `System.Runtime` to `server`.
 
-## Current Capability
+## Current Capability Matrix
 
-The package currently provides:
+| Area | Current Status |
+| --- | --- |
+| Runtime enum | Implemented for `server`, `scheduler`, `collector`, and `compute`. |
+| Environment enum | Implemented for `dev`, `test`, `staging`, and `prod`. |
+| Organization fragment | Implemented with default name and stable identifier validation. |
+| Application fragment | Implemented with default name and kebab-name validation. |
+| System fragment | Implemented with runtime validation, but no default runtime selection. |
+| Service fragment | Implemented with namespace/name default helpers and identifier validation. |
+| Deployment fragment | Implemented with default env and placement identifier fields. |
+| Fragment defaults | Implemented as conservative `Default` methods. |
+| Fragment validation | Implemented through Dox-owned validation tags. |
+| Validation errors | Implemented with Dox-owned `ValidationError` and `FieldError` types. |
+| Root `Setting` aggregate | Not implemented by this package. |
+| HTTP/database/security/queue/plugin settings | Not implemented by this package. |
+| Config source loading and decoding | Not implemented by this package. |
+| Service discovery or deployment manifest modeling | Not implemented by this package. |
+| Runtime bootstrap behavior | Not implemented by this package. |
+| Server-only validation rules | Not implemented by this package. |
 
-- `Runtime` enum values for `server`, `scheduler`, `collector`, and `compute`;
-- `Env` enum values for `dev`, `test`, `staging`, and `prod`;
-- default organization and application names;
-- `Organization`, `Application`, `System`, `Service`, and `Deployment` fragments;
-- conservative `Default` methods for fragments;
-- Dox-owned validation rules for kebab names, stable identifiers, runtime values, and env values;
-- `ValidationError` and `FieldError` types that hide the third-party validator error type from callers.
+## Default Fragment Shape
 
-## Current Non-capability
-
-The package currently does not provide:
-
-- a root `Setting` aggregate;
-- HTTP, database, security, queue, logging, or plugin setting groups;
-- config file loading, source merging, or decoding;
-- service discovery or deployment manifest modeling;
-- default runtime selection for all systems;
-- server-only validation rules;
-- runtime bootstrap behavior.
-
-> [!IMPORTANT]
-> Do not move runtime-owned policy into this package because one runtime currently needs it. Shared fragments should stay reusable across Web, Scheduling, Collection, and Computation.
-
-## Consumer Integration Checklist
-
-- [ ] Compose only the fragments whose semantics match the runtime aggregate.
-- [ ] Fill shared defaults before runtime-specific defaults when doing so keeps the flow easy to reason about.
-- [ ] Keep runtime-owned identity rules in the runtime package.
-- [ ] Validate shared fragments with their `Validate` methods or `setting.Validate`.
-- [ ] Join shared validation errors with runtime-owned validation errors at the aggregate boundary.
-- [ ] Document any runtime-specific default or stricter validation rule outside this shared package handbook.
-
-<details>
-<summary>Example: current server composition</summary>
-
-`server/internal/setting.Identity` composes these shared fragments:
-
-```go
-type Identity struct {
-	Organization sharedsetting.Organization `json:"organization" yaml:"organization" mapstructure:"organization"`
-	Application  sharedsetting.Application  `json:"application" yaml:"application" mapstructure:"application"`
-	System       sharedsetting.System       `json:"system" yaml:"system" mapstructure:"system"`
-	Service      sharedsetting.Service      `json:"service" yaml:"service" mapstructure:"service"`
-	Deployment   sharedsetting.Deployment   `json:"deployment" yaml:"deployment" mapstructure:"deployment"`
-}
+```yaml
+organization:
+  name: opendox
+application:
+  name: dox
+system:
+  runtime: ""
+service:
+  namespace: dox
+  name: ""
+deployment:
+  env: dev
 ```
 
-The server package then owns the server-specific rule that `System.Runtime` must be `server`. That rule is not part of the shared package contract.
+`System.Default` intentionally does not choose a runtime. `Service.Default` can fill `service.name` from `system.runtime` only when the runtime value is already known.
 
-</details>
+> [!WARNING]
+> The empty `system.runtime` and `service.name` values above are not valid final runtime settings. Runtime packages must choose their own runtime identity before validation.
 
-## Navigation
+## System Manual References
 
-| Previous | Up | Next |
-| --- | --- | --- |
-| [Shared config package](../config/README.md) | Shared packages | [Chapter 1: Contract](contract.md) |
+System engineering manuals should reference this package manual for:
+
+- supported `Runtime` and `Env` values;
+- shared identity and deployment fragment semantics;
+- defaulting and validation contracts;
+- `ValidationError` and `FieldError` shape;
+- the package boundary between shared fragments and runtime-owned aggregates.
+
+Runtime manuals should document their own aggregate shape, runtime selection, bootstrap-derived seed values, stricter validation rules, and subsystem-specific setting groups separately.
+
+## Related Package Manuals
+
+- [Shared config package](../config/README.md)
+- [Shared logging package](../logging/README.md)
+- Package source: `packages/shared/setting`
+- Current server consumer: `server/internal/setting`

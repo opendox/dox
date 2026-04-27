@@ -23,7 +23,7 @@
 
 # Shared Logging 函数与 API
 
-本页回答调用方可以使用哪些 exported logging APIs，以及每个 API 的用途。
+Shared logging API surface 定义 `packages/shared/logging` 暴露的 exported types、constructors、helpers、constants 和 caller-facing behavior。
 
 ## Constants 和 Enums
 
@@ -147,7 +147,7 @@ defer logger.Sync()
 
 这个 sketch 省略 runtime policy，例如 path rendering、global OpenTelemetry installation 和 shutdown orchestration。
 
-## 相关参考
+## 相关页面
 
 - [契约](contract.md)
 - [模型](model.md)

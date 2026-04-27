@@ -25,134 +25,114 @@
 
 `packages/shared/config` 是 Dox 共享的配置加载 SDK。它为各个后端 runtime 提供一套显式流程：读取声明的配置源、解析 payload、合并值、解码到调用方拥有的目标对象，并返回可观察诊断信息。
 
-这份手册面向开发者和编码 Agent。Web、Scheduling、Collection、Computation 以及后续 runtime 引用 `github.com/opendox/dox/packages/shared/config` 时，都应把这里当作包级契约。
+这份手册定义 runtime packages 和系统工程手册可引用的包级 config loading 契约。
 
-## 目录
+> [!IMPORTANT]
+> Runtime packages 可以引用这个包，但 runtime bootstrap 仍然负责 source list selection、default path discovery、secret resolution、redaction policy、hot reload lifecycle，以及 domain-specific setting validation。
 
-- [契约](contract.md)：`Request`、`Source`、`Options`、`Result`、诊断和错误语义。
-- [管线](pipeline.md)：provider、parser、merge、decode、fingerprint 和 diagnostics 流程。
-- [函数与 API](functions.md)：导出入口、接口、辅助函数和调用方责任。
+## 手册页面
+
+| 页面 | 包问题 |
+| --- | --- |
+| [契约](contract.md) | 哪些 request、source、option、result、diagnostic 和 error 语义对消费者稳定。 |
+| [管线](pipeline.md) | Values 如何经过 provider、parser、merge、decode、fingerprint 和 diagnostics 阶段。 |
+| [函数与 API](functions.md) | 可用的导出入口、接口、helper 和调用方责任。 |
 
 ## 包定位
 
-这个包负责配置加载管线契约。它在工作开始前验证 API 使用方式，为一个显式 `Request` 执行加载流程，并返回调用方可以记录或检查的 `Result`。
-
-这个包不负责 runtime 级 setting 校验。各 runtime 包在解码出原始配置值后，自己定义 setting 结构体、字段约束、默认策略和运行规则。
-
-## 当前能力
-
-当前实现包含：
-
-- 本地文件 provider 和环境变量 provider；
-- YAML、JSON、TOML 和 `none` parser；
-- map 深度合并，scalar 和 slice 替换；
-- 按 `Priority` 升序排列 source；
-- merge 前展开环境变量 dotted key；
-- 通过 `mapstructure` 解码到 struct pointer 或 map pointer；
-- 默认拒绝未知 key；
-- 基于合并后值的稳定 `sha256:` fingerprint；
-- source diagnostics 和 override diagnostics；
-- 自定义 provider、parser、merger、decoder 的扩展点。
-
-`ProviderKindRemote` 作为命名 kind 已存在，但默认 loader 没有注册 remote provider。调用方要使用 remote 或其他自定义 source kind，必须先注册 provider。
-
-## 当前非能力
-
-这个包当前不实现：
-
-- runtime 级 setting 校验；
-- 文件监听或热重载；
-- 默认 loader 中的 remote provider 读取；
-- 默认文件路径发现；
-- secret 加载；
-- schema 生成；
-- 对 `Options.RedactKeys` 的值脱敏执行。
-
-`Options.RedactKeys` 目前只是 option 结构的一部分，当前管线不会把它应用到 values、diagnostics、errors 或 fingerprints。不要把它当作脱敏保证。
-
-## 基本用法
-
-```go
-package runtime
-
-import (
-	"context"
-	"time"
-
-	sharedconfig "github.com/opendox/dox/packages/shared/config"
-)
-
-type Setting struct {
-	App struct {
-		Name string `mapstructure:"name"`
-	} `mapstructure:"app"`
-	HTTP struct {
-		Port    int           `mapstructure:"port"`
-		Timeout time.Duration `mapstructure:"timeout"`
-	} `mapstructure:"http"`
-}
-
-func LoadSetting(ctx context.Context, basePath string) (*Setting, *sharedconfig.Result, error) {
-	var target Setting
-	result, err := sharedconfig.Load(ctx, sharedconfig.Request{
-		Runtime: "server",
-		Env:     "dev",
-		Target:  &target,
-		Sources: []sharedconfig.Source{
-			{
-				Name:     "base",
-				Kind:     sharedconfig.ProviderKindFile,
-				Parser:   sharedconfig.ParserKindYAML,
-				Location: basePath,
-				Required: true,
-				Priority: 10,
-			},
-			{
-				Name:     "env",
-				Kind:     sharedconfig.ProviderKindEnv,
-				Parser:   sharedconfig.ParserKindNone,
-				Location: "DOX_SERVER_",
-				Required: false,
-				Priority: 100,
-			},
-		},
-		Options: sharedconfig.Options{
-			UnknownKeyPolicy: sharedconfig.UnknownKeyPolicyReject,
-		},
-	})
-	if err != nil {
-		return nil, nil, err
-	}
-	return &target, result, nil
-}
+```mermaid
+flowchart TD
+    bootstrap["runtime bootstrap"] --> request["config.Request"]
+    request --> loader["shared config loader"]
+    loader --> providers["providers<br/>file, env, custom"]
+    loader --> parsers["parsers<br/>yaml, json, toml, none"]
+    providers --> merge["merge and decode"]
+    parsers --> merge
+    merge --> target["runtime-owned setting target"]
+    merge --> result["config.Result<br/>diagnostics and fingerprint"]
+    target --> bootstrap
+    result --> bootstrap
 ```
 
-这个例子先读取一个必需 YAML 文件，再用匹配前缀的环境变量作为更高优先级覆盖。调用方仍然负责 setting 默认值、领域校验和 runtime 启动行为。
+这个包负责配置加载管线契约。它在工作开始前验证 API 使用方式，为一个显式 `Request` 执行加载流程，并返回调用方可以记录或检查的 `Result`。
 
-## 调用方规则
+## 当前能力矩阵
 
-调用方应该：
+| 区域 | 当前状态 |
+| --- | --- |
+| 本地文件 provider | 已为 required 和 optional file sources 实现。 |
+| 环境变量 provider | 已实现 prefix filtering 和 dotted-key expansion。 |
+| YAML parser | 已为 object-rooted YAML payloads 实现。 |
+| JSON parser | 已为 object-rooted JSON payloads 实现，并保留 JSON numbers。 |
+| TOML parser | 已为 object-rooted TOML payloads 实现。 |
+| `none` parser | 已为 structured provider values 实现，主要用于 env sources。 |
+| Merge strategy | 已实现 map deep merge，scalar 和 slice 替换。 |
+| Source ordering | 已按 `Priority` 升序实现；重复 priority 会被拒绝。 |
+| Decode | 已通过 `mapstructure` 为 struct 和 map pointers 实现。 |
+| Unknown key policy | 已实现默认 reject 行为。 |
+| Result fingerprint | 已实现基于 merged structured values 的稳定 `sha256:`。 |
+| Diagnostics | 已实现 source participation 和 override records。 |
+| Custom pipeline components | 已通过 custom providers、parsers、mergers、decoders 实现。 |
+| Remote provider reads | 默认 loader 未实现；`ProviderKindRemote` 只是命名 kind。 |
+| 文件监听和热重载 | 本包不实现。 |
+| 默认路径发现 | 本包不实现。 |
+| Secret loading | 本包不实现。 |
+| Schema generation | 本包不实现。 |
+| Redaction | 已有 `Options.RedactKeys` 配置形状，但不会应用到 values、diagnostics、errors 或 fingerprints。 |
 
-- 创建由 runtime 包自己拥有的 typed setting target；
-- 显式声明每一个 source；
-- 使用唯一 source name 和唯一 priority；
-- 让低优先级 base 文件排在高优先级 override 之前；
-- 环境变量 source 使用 `ParserKindNone`；
-- 用 `IsKind` 检查 typed error；
-- 需要运维可追踪性时，记录 `Result.SourceNames`、`Result.Fingerprint` 和 diagnostics。
+## 默认本地加载形状
 
-调用方不应该：
+```go
+var target Setting
+result, err := sharedconfig.Load(ctx, sharedconfig.Request{
+	Runtime: "server",
+	Env:     "dev",
+	Target:  &target,
+	Sources: []sharedconfig.Source{
+		{
+			Name:     "base",
+			Kind:     sharedconfig.ProviderKindFile,
+			Parser:   sharedconfig.ParserKindYAML,
+			Location: "config/server.yaml",
+			Required: true,
+			Priority: 10,
+		},
+		{
+			Name:     "env",
+			Kind:     sharedconfig.ProviderKindEnv,
+			Parser:   sharedconfig.ParserKindNone,
+			Location: "DOX_SERVER_",
+			Required: false,
+			Priority: 100,
+		},
+	},
+	Options: sharedconfig.Options{
+		UnknownKeyPolicy: sharedconfig.UnknownKeyPolicyReject,
+	},
+})
+```
 
-- 依赖未声明的默认 source；
-- 传入 nil context 或 nil target；
-- 不注册 provider 就使用 `ProviderKindRemote`；
-- 把 Koanf 或 mapstructure 暴露成 runtime 自己的公开契约；
-- 假设 `RedactKeys` 会移除敏感值。
+这个形状先读取一个必需 YAML 文件，再用匹配前缀的环境变量作为更高优先级覆盖。调用方仍然负责 `Setting` 类型、默认值、领域校验和 runtime 启动行为。
 
-## 阅读顺序
+> [!WARNING]
+> `Options.RedactKeys` 目前只是 option 结构的一部分，当前管线不会执行 redaction。不要把返回 values、diagnostics、errors 或 fingerprints 当作已脱敏输出。
 
-实现新的 runtime 集成时，建议按顺序阅读：
+## 系统手册引用
 
-1. [契约](contract.md)，理解合法 request 和失败分类。
-2. [管线](pipeline.md)，理解值如何流动以及如何覆盖。
-3. [函数与 API](functions.md)，选择入口函数和扩展点。
+系统工程手册应引用本包手册中的这些内容：
+
+- source list 选择；
+- bootstrap-derived values；
+- runtime-specific defaults 和 validation；
+- secret 和 redaction policy；
+- hot reload 或 remote configuration lifecycle；
+- startup logging 和 operational reporting。
+
+Web、Scheduling、Collection、Computation 手册应单独记录自己的 concrete source lists、path defaults、secret stores、reload behavior 和 validation rules。
+
+## 相关包手册
+
+- [Shared setting 包](../setting/README.md)
+- [Shared logging 包](../logging/README.md)
+- Package source: `packages/shared/config`
+- Current server consumer: `server/internal/bootstrap/config`

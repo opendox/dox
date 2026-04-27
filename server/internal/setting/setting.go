@@ -33,6 +33,7 @@ type DefaultOptions struct {
 // Setting is the root configuration aggregate for the Dox Web backend runtime.
 type Setting struct {
 	Identity Identity `json:"identity" yaml:"identity" mapstructure:"identity"`
+	Logging  Logging  `json:"logging" yaml:"logging" mapstructure:"logging"`
 }
 
 // Default fills stable server defaults without bootstrap-derived values.
@@ -45,12 +46,21 @@ func (s *Setting) DefaultWithOptions(options DefaultOptions) error {
 	if s == nil {
 		return errors.New("server setting: setting must not be nil")
 	}
-	return s.Identity.DefaultWithOptions(IdentityDefaultOptions{
+	if err := s.Identity.DefaultWithOptions(IdentityDefaultOptions{
 		Env: options.Env,
-	})
+	}); err != nil {
+		return err
+	}
+	if err := s.Logging.Default(); err != nil {
+		return err
+	}
+	return nil
 }
 
 // Validate verifies the concrete server configuration aggregate.
 func (s Setting) Validate() error {
-	return s.Identity.Validate()
+	return errors.Join(
+		s.Identity.Validate(),
+		s.Logging.Validate(),
+	)
 }

@@ -15,17 +15,19 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * @File    : doc.go
+ * @File    : logging.go
  * @Author  : Frost Leo <frostleo.dev@gmail.com>
- * @Created : 2026-04-26
- * @Modified: 2026-04-26
+ * @Created : 2026-04-27
+ * @Modified: 2026-04-27
  */
 
-// Package setting defines the concrete configuration aggregate for the Dox
-// Web backend runtime.
-//
-// Shared packages define reusable fragments. This package owns the server
-// runtime composition, defaulting order, and server-specific validation rules.
-// It loads logging configuration but does not initialize runtime loggers,
-// sinks, or OpenTelemetry providers.
 package setting
+
+import sharedlogging "github.com/opendox/dox/packages/shared/logging"
+
+// Logging is the shared logging configuration group accepted by the server.
+//
+// The server setting package loads and validates this group only. Runtime
+// bootstrap owns logger and OpenTelemetry provider initialization in later
+// integration issues.
+type Logging = sharedlogging.Config

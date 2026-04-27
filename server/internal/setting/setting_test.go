@@ -25,13 +25,17 @@ package setting
 
 import (
 	"context"
+	"errors"
+	"os"
 	"testing"
+	"time"
 
 	sharedconfig "github.com/opendox/dox/packages/shared/config"
+	sharedlogging "github.com/opendox/dox/packages/shared/logging"
 	sharedsetting "github.com/opendox/dox/packages/shared/setting"
 )
 
-func TestSettingDefaultAppliesIdentityDefaults(t *testing.T) {
+func TestSettingDefaultAppliesIdentityAndLoggingDefaults(t *testing.T) {
 	setting := Setting{}
 
 	if err := setting.DefaultWithOptions(DefaultOptions{Env: "test"}); err != nil {
@@ -42,6 +46,18 @@ func TestSettingDefaultAppliesIdentityDefaults(t *testing.T) {
 	}
 	if setting.Identity.Deployment.Env != sharedsetting.EnvTest {
 		t.Fatalf("expected deployment env from options, got %q", setting.Identity.Deployment.Env)
+	}
+	if setting.Logging.Level != sharedlogging.LevelInfo {
+		t.Fatalf("expected logging level info, got %q", setting.Logging.Level)
+	}
+	if len(setting.Logging.Cores) != 2 {
+		t.Fatalf("expected logging default cores, got %#v", setting.Logging.Cores)
+	}
+	if setting.Logging.Shutdown.Timeout != 5*time.Second {
+		t.Fatalf("expected logging shutdown timeout 5s, got %s", setting.Logging.Shutdown.Timeout)
+	}
+	if setting.Logging.OTel.Exporter.OTLP.Enabled {
+		t.Fatal("expected logging OTLP exporter to be disabled by default")
 	}
 	if err := setting.Validate(); err != nil {
 		t.Fatalf("validate setting: %v", err)
@@ -70,6 +86,32 @@ func TestSettingDecodeValuesSupportsNestedIdentity(t *testing.T) {
 				"k8s_namespace": "dox-prod",
 			},
 		},
+		"logging": map[string]any{
+			"level": "debug",
+			"zap": map[string]any{
+				"level": "warn",
+				"encoder_config": map[string]any{
+					"level_encoder":    "capital",
+					"time_encoder":     "rfc3339nano",
+					"duration_encoder": "millis",
+					"caller_encoder":   "short",
+					"name_encoder":     "full",
+				},
+				"output_paths":       []any{"stdout"},
+				"error_output_paths": []any{"stderr"},
+			},
+			"shutdown": map[string]any{
+				"timeout": "2s",
+			},
+			"otel": map[string]any{
+				"traces": map[string]any{
+					"sampler": map[string]any{
+						"type":  "traceidratio",
+						"ratio": 0.25,
+					},
+				},
+			},
+		},
 	}
 
 	setting := Setting{}
@@ -94,6 +136,18 @@ func TestSettingDecodeValuesSupportsNestedIdentity(t *testing.T) {
 	}
 	if setting.Identity.Deployment.Env != sharedsetting.EnvProd {
 		t.Fatalf("expected deployment env from bootstrap option, got %q", setting.Identity.Deployment.Env)
+	}
+	if setting.Logging.Level != sharedlogging.LevelDebug {
+		t.Fatalf("expected decoded logging level debug, got %q", setting.Logging.Level)
+	}
+	if setting.Logging.Zap.Level != sharedlogging.LevelWarn {
+		t.Fatalf("expected decoded zap logging level warn, got %q", setting.Logging.Zap.Level)
+	}
+	if setting.Logging.Shutdown.Timeout != 2*time.Second {
+		t.Fatalf("expected decoded logging shutdown timeout 2s, got %s", setting.Logging.Shutdown.Timeout)
+	}
+	if setting.Logging.OTel.Traces.Sampler.Ratio != 0.25 {
+		t.Fatalf("expected decoded logging sampler ratio 0.25, got %f", setting.Logging.OTel.Traces.Sampler.Ratio)
 	}
 }
 
@@ -122,6 +176,32 @@ func TestSettingValidateRejectsInvalidDecodedIdentity(t *testing.T) {
 	}
 }
 
+func TestSettingValidateRejectsInvalidLogging(t *testing.T) {
+	setting := Setting{}
+
+	if err := setting.Default(); err != nil {
+		t.Fatalf("default setting: %v", err)
+	}
+	setting.Logging.Level = sharedlogging.Level("verbose")
+
+	if err := setting.Validate(); !hasLoggingValidationField(err, "level") {
+		t.Fatalf("expected invalid logging level validation error, got %v", err)
+	}
+}
+
+func TestSettingDefaultDoesNotInitializeLoggingRuntime(t *testing.T) {
+	t.Chdir(t.TempDir())
+
+	setting := Setting{}
+	if err := setting.Default(); err != nil {
+		t.Fatalf("default setting: %v", err)
+	}
+
+	if _, err := os.Stat("logs"); !errors.Is(err, os.ErrNotExist) {
+		t.Fatalf("expected setting defaults not to create logs directory, got %v", err)
+	}
+}
+
 func TestSettingValidateRejectsInvalidBootstrapEnv(t *testing.T) {
 	setting := Setting{}
 
@@ -139,4 +219,17 @@ func TestSettingDefaultRejectsNilReceiver(t *testing.T) {
 	if err := setting.Default(); err == nil {
 		t.Fatal("expected nil setting default error")
 	}
+}
+
+func hasLoggingValidationField(err error, field string) bool {
+	var validationErr *sharedlogging.ValidationError
+	if !errors.As(err, &validationErr) {
+		return false
+	}
+	for _, item := range validationErr.Fields {
+		if item.Field == field {
+			return true
+		}
+	}
+	return false
 }

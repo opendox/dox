@@ -32,6 +32,7 @@ Shared packages provide reusable configuration fragments. This package decides h
 - `server/internal/bootstrap` loads source snapshots from files and environment variables.
 - `packages/shared/config` provides source loading, merging, and decoding primitives.
 - `packages/shared/setting` defines reusable setting fragments.
+- `packages/shared/logging` defines the shared logging model and runtime helper configuration.
 - `server/internal/setting` defines the server runtime aggregate and group-level semantics.
 
 Bootstrap should not own concrete HTTP, database, identity, logging, or security setting structs. It should continue to provide loaded values and diagnostics.
@@ -42,13 +43,15 @@ Use one file per configuration group:
 
 - `setting.go` defines the root `Setting` aggregate.
 - `identity.go` defines the identity group.
-- Future `database.go`, `http.go`, `logging.go`, `security.go`, and similar files should define their own focused groups.
+- `logging.go` defines the server logging configuration group backed by shared logging config.
+- Future `database.go`, `http.go`, `security.go`, and similar files should define their own focused groups.
 
 The root aggregate should compose groups instead of flattening every field:
 
 ```go
 type Setting struct {
     Identity Identity `json:"identity" yaml:"identity" mapstructure:"identity"`
+    Logging  Logging  `json:"logging" yaml:"logging" mapstructure:"logging"`
     Database Database `json:"database" yaml:"database" mapstructure:"database"`
 }
 ```
@@ -68,3 +71,11 @@ The identity group composes shared identity fragments:
 The server package defaults `System.Runtime` to `server`. That default does not belong in `packages/shared/setting`, because scheduler, collector, and compute runtimes must own their own runtime identity.
 
 `Deployment.Env` may be seeded from the bootstrap environment when the final server setting is created. If no seed or explicit value is provided, it falls back to the shared deployment default.
+
+## Logging
+
+The logging group is backed by `packages/shared/logging.Config`.
+
+Server settings own loading, defaulting, and validation of this group. Runtime bootstrap will later decide how to construct zap cores, the Dox logger facade, and OpenTelemetry providers from the validated config.
+
+This package must not open logging sinks, create log files, install OpenTelemetry globals, or wire HTTP/server modules to logging.

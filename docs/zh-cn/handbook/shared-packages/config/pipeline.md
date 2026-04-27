@@ -179,3 +179,9 @@ Source name 应体现用途，例如 `base`、`local`、`secrets` 或 `env`。Pr
 - 排查覆盖行为时记录 diagnostics。
 
 不要记录 raw merged values，除非调用方已经应用自己的脱敏策略。
+
+## 相关页面
+
+- [Shared config 包手册](README.md)
+- [Shared config 契约](contract.md)
+- [Shared config 函数与 API](functions.md)

@@ -23,7 +23,7 @@
 
 # Shared Logging Runtime Boundary
 
-This page answers how `packages/shared/logging` touches zap, lumberjack, and OpenTelemetry SDKs without taking over runtime bootstrap.
+The shared logging runtime boundary defines how `packages/shared/logging` touches zap, lumberjack, and OpenTelemetry SDKs while runtime bootstrap remains runtime-owned.
 
 ## Boundary Diagram
 
@@ -122,7 +122,7 @@ Runtime bootstrap owns:
 | OTLP exporter is unsupported | Runtime/exporter integration must be implemented separately. |
 | No runtime bootstrap is included | Server, scheduler, collector, and compute must wire lifecycle behavior themselves. |
 
-## Related References
+## Related Pages
 
 - [Contract](contract.md)
 - [Model](model.md)

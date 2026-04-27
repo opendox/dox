@@ -21,138 +21,118 @@
   @Modified: 2026-04-27
 -->
 
-# Shared Config Package Handbook
+# Shared Config Package Manual
 
 `packages/shared/config` is the shared Dox configuration loading SDK. It gives each backend runtime an explicit way to read declared sources, parse source payloads, merge values, decode into caller-owned targets, and return operational diagnostics.
 
-This handbook is written for developers and coding agents. Treat it as the package-level contract for consumers in Web, Scheduling, Collection, Computation, and any later runtime that imports `github.com/opendox/dox/packages/shared/config`.
+This manual defines the package-level config loading contract for runtime packages and system engineering manuals.
 
-## Table of Contents
+> [!IMPORTANT]
+> Runtime packages may reference this package, but runtime bootstrap still owns source list selection, default path discovery, secret resolution, redaction policy, hot reload lifecycle, and domain-specific setting validation.
 
-- [Contract](contract.md): request, source, option, result, diagnostics, and error semantics.
-- [Pipeline](pipeline.md): provider, parser, merge, decode, fingerprint, and diagnostics flow.
-- [Functions and API](functions.md): exported entry points, interfaces, helpers, and caller obligations.
+## Manual Pages
+
+| Page | Package Question |
+| --- | --- |
+| [Contract](contract.md) | Which request, source, option, result, diagnostic, and error semantics are stable for consumers. |
+| [Pipeline](pipeline.md) | How values move through provider, parser, merge, decode, fingerprint, and diagnostics stages. |
+| [Functions and API](functions.md) | Which exported entry points, interfaces, helpers, and caller obligations are available. |
 
 ## Package Position
 
-The package owns the loading pipeline contract. It validates API usage before work starts, executes the pipeline for one explicit `Request`, and returns a `Result` that callers can log or inspect.
-
-The package does not own runtime-specific setting validation. Runtime packages define their own setting structs, field constraints, default policy, and operational rules after this package has decoded raw configuration values.
-
-## Current Capability
-
-The current implementation includes:
-
-- local file and environment providers;
-- YAML, JSON, TOML, and `none` parsers;
-- deep map merge with scalar and slice replacement;
-- source ordering by ascending `Priority`;
-- environment dotted-key expansion before merge;
-- decode into struct pointers or map pointers through `mapstructure`;
-- reject-by-default unknown key handling;
-- stable `sha256:` fingerprints over merged values;
-- source diagnostics and override diagnostics;
-- extension points for custom providers, parsers, mergers, and decoders.
-
-`ProviderKindRemote` exists as a named kind, but no remote provider is registered by the default loader. Callers must register a provider before using remote or other custom source kinds.
-
-## Current Non-capability
-
-The package currently does not implement:
-
-- runtime-specific setting validation;
-- file watching or hot reload;
-- remote provider reads in the default loader;
-- default file path discovery;
-- secret loading;
-- schema generation;
-- value redaction enforcement for `Options.RedactKeys`.
-
-`Options.RedactKeys` is accepted as part of the option shape, but the current pipeline does not apply redaction to values, diagnostics, errors, or fingerprints. Do not treat it as a sanitization guarantee.
-
-## Basic Usage
-
-```go
-package runtime
-
-import (
-	"context"
-	"time"
-
-	sharedconfig "github.com/opendox/dox/packages/shared/config"
-)
-
-type Setting struct {
-	App struct {
-		Name string `mapstructure:"name"`
-	} `mapstructure:"app"`
-	HTTP struct {
-		Port    int           `mapstructure:"port"`
-		Timeout time.Duration `mapstructure:"timeout"`
-	} `mapstructure:"http"`
-}
-
-func LoadSetting(ctx context.Context, basePath string) (*Setting, *sharedconfig.Result, error) {
-	var target Setting
-	result, err := sharedconfig.Load(ctx, sharedconfig.Request{
-		Runtime: "server",
-		Env:     "dev",
-		Target:  &target,
-		Sources: []sharedconfig.Source{
-			{
-				Name:     "base",
-				Kind:     sharedconfig.ProviderKindFile,
-				Parser:   sharedconfig.ParserKindYAML,
-				Location: basePath,
-				Required: true,
-				Priority: 10,
-			},
-			{
-				Name:     "env",
-				Kind:     sharedconfig.ProviderKindEnv,
-				Parser:   sharedconfig.ParserKindNone,
-				Location: "DOX_SERVER_",
-				Required: false,
-				Priority: 100,
-			},
-		},
-		Options: sharedconfig.Options{
-			UnknownKeyPolicy: sharedconfig.UnknownKeyPolicyReject,
-		},
-	})
-	if err != nil {
-		return nil, nil, err
-	}
-	return &target, result, nil
-}
+```mermaid
+flowchart TD
+    bootstrap["runtime bootstrap"] --> request["config.Request"]
+    request --> loader["shared config loader"]
+    loader --> providers["providers<br/>file, env, custom"]
+    loader --> parsers["parsers<br/>yaml, json, toml, none"]
+    providers --> merge["merge and decode"]
+    parsers --> merge
+    merge --> target["runtime-owned setting target"]
+    merge --> result["config.Result<br/>diagnostics and fingerprint"]
+    target --> bootstrap
+    result --> bootstrap
 ```
 
-This example reads a required YAML file first, then applies matching environment variables as higher-priority overrides. The caller still owns setting defaults, domain validation, and runtime startup behavior.
+The package owns the loading pipeline contract. It validates API usage before work starts, executes the pipeline for one explicit `Request`, and returns a `Result` that callers can log or inspect.
 
-## Consumer Rules
+## Current Capability Matrix
 
-Consumers should:
+| Area | Current Status |
+| --- | --- |
+| Local file provider | Implemented for required and optional file sources. |
+| Environment provider | Implemented with prefix filtering and dotted-key expansion. |
+| YAML parser | Implemented for object-rooted YAML payloads. |
+| JSON parser | Implemented for object-rooted JSON payloads with preserved JSON numbers. |
+| TOML parser | Implemented for object-rooted TOML payloads. |
+| `none` parser | Implemented for structured provider values, mainly env sources. |
+| Merge strategy | Implemented as deep map merge with scalar and slice replacement. |
+| Source ordering | Implemented by ascending `Priority`; duplicate priorities are rejected. |
+| Decode | Implemented for struct and map pointers through `mapstructure`. |
+| Unknown key policy | Implemented with reject-by-default behavior. |
+| Result fingerprint | Implemented as stable `sha256:` over merged structured values. |
+| Diagnostics | Implemented for source participation and override records. |
+| Custom pipeline components | Implemented through custom providers, parsers, mergers, and decoders. |
+| Remote provider reads | Not implemented by the default loader; `ProviderKindRemote` is only a named kind. |
+| File watching and hot reload | Not implemented by this package. |
+| Default path discovery | Not implemented by this package. |
+| Secret loading | Not implemented by this package. |
+| Schema generation | Not implemented by this package. |
+| Redaction | Configured by `Options.RedactKeys`, but not applied to values, diagnostics, errors, or fingerprints. |
 
-- create a typed setting target owned by the runtime package;
-- declare every source explicitly;
-- use unique source names and unique priorities;
-- keep lower-priority base files before higher-priority overrides;
-- use `ParserKindNone` for environment sources;
-- inspect typed errors with `IsKind`;
-- persist or log `Result.SourceNames`, `Result.Fingerprint`, and diagnostics when operational traceability is needed.
+## Default Local Load Shape
 
-Consumers should not:
+```go
+var target Setting
+result, err := sharedconfig.Load(ctx, sharedconfig.Request{
+	Runtime: "server",
+	Env:     "dev",
+	Target:  &target,
+	Sources: []sharedconfig.Source{
+		{
+			Name:     "base",
+			Kind:     sharedconfig.ProviderKindFile,
+			Parser:   sharedconfig.ParserKindYAML,
+			Location: "config/server.yaml",
+			Required: true,
+			Priority: 10,
+		},
+		{
+			Name:     "env",
+			Kind:     sharedconfig.ProviderKindEnv,
+			Parser:   sharedconfig.ParserKindNone,
+			Location: "DOX_SERVER_",
+			Required: false,
+			Priority: 100,
+		},
+	},
+	Options: sharedconfig.Options{
+		UnknownKeyPolicy: sharedconfig.UnknownKeyPolicyReject,
+	},
+})
+```
 
-- rely on undeclared default sources;
-- pass a nil context or nil target;
-- use `ProviderKindRemote` without registering a provider;
-- expose Koanf or mapstructure as part of their own public runtime contract;
-- assume `RedactKeys` removes sensitive values.
+This shape reads a required YAML file first, then applies matching environment variables as higher-priority overrides. The caller still owns the `Setting` type, defaults, domain validation, and runtime startup behavior.
 
-## Reading Order
+> [!WARNING]
+> `Options.RedactKeys` is accepted as part of the option shape, but the current pipeline does not apply redaction. Do not treat returned values, diagnostics, errors, or fingerprints as sanitized output.
 
-Read these pages in order when implementing a new runtime integration:
+## System Manual References
 
-1. [Contract](contract.md) to understand valid requests and failure classes.
-2. [Pipeline](pipeline.md) to understand how values move and override each other.
-3. [Functions and API](functions.md) to choose the entry point and extension points.
+System engineering manuals should reference this package manual for:
+
+- source list selection;
+- bootstrap-derived values;
+- runtime-specific defaults and validation;
+- secret and redaction policy;
+- hot reload or remote configuration lifecycle;
+- startup logging and operational reporting.
+
+Web, Scheduling, Collection, and Computation manuals should document their own concrete source lists, path defaults, secret stores, reload behavior, and validation rules separately.
+
+## Related Package Manuals
+
+- [Shared setting package](../setting/README.md)
+- [Shared logging package](../logging/README.md)
+- Package source: `packages/shared/config`
+- Current server consumer: `server/internal/bootstrap/config`

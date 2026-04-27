@@ -23,7 +23,7 @@
 
 # Shared Logging Model
 
-This page answers how Dox log records should describe the producer, execution chain, observed event, internal node, tags, and detailed fields.
+The shared logging model defines how Dox log records describe the producer, execution chain, observed event, internal node, tags, and detailed fields.
 
 ## Model Map
 
@@ -187,7 +187,7 @@ Attribute constructors merge non-empty structured values:
 
 Call-site attributes are applied after logger-level attributes and context correlation. Call-site values can override earlier structured values.
 
-## Related References
+## Related Pages
 
 - [Contract](contract.md)
 - [Runtime Boundary](runtime-boundary.md)

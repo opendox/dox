@@ -21,14 +21,9 @@
   @Modified: 2026-04-27
 -->
 
-# Chapter 1: Shared Setting Contract
+# Shared Setting Contract
 
-| Previous | Up | Next |
-| --- | --- | --- |
-| [Overview](README.md) | [Shared setting package](README.md) | [Chapter 2: Model](model.md) |
-
-> [!TIP]
-> Read this chapter before composing the package into a runtime aggregate. It defines which decisions belong in the shared package and which decisions must stay in runtime-owned code.
+The shared setting contract defines which identity and deployment decisions belong in `packages/shared/setting`, which decisions remain runtime-owned, and which validation errors are part of the package boundary.
 
 ## Contract Summary
 
@@ -145,8 +140,8 @@ The following are outside the shared setting contract:
 - choosing a runtime identity for all consumers;
 - creating process-wide defaults from environment variables.
 
-## Navigation
+## Related Pages
 
-| Previous | Up | Next |
-| --- | --- | --- |
-| [Overview](README.md) | [Shared setting package](README.md) | [Chapter 2: Model](model.md) |
+- [Shared setting package manual](README.md)
+- [Shared setting model](model.md)
+- [Shared setting functions and API](functions.md)

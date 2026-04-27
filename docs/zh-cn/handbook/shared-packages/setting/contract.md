@@ -21,14 +21,9 @@
   @Modified: 2026-04-27
 -->
 
-# 第 1 章：Shared Setting 契约
+# Shared Setting 契约
 
-| 上一章 | 上级 | 下一章 |
-| --- | --- | --- |
-| [总览](README.md) | [Shared setting 包](README.md) | [第 2 章：模型](model.md) |
-
-> [!TIP]
-> 把这个包组合进 runtime aggregate 之前，先读本章。它定义哪些决策属于 shared package，哪些决策必须留在 runtime-owned code。
+Shared setting 契约定义哪些 identity 和 deployment 决策属于 `packages/shared/setting`，哪些决策保留在 runtime-owned code，以及哪些 validation errors 属于包边界。
 
 ## 契约摘要
 
@@ -145,8 +140,8 @@ sequenceDiagram
 - 为所有 consumers 选择 runtime identity；
 - 从环境变量创建 process-wide defaults。
 
-## 导航
+## 相关页面
 
-| 上一章 | 上级 | 下一章 |
-| --- | --- | --- |
-| [总览](README.md) | [Shared setting 包](README.md) | [第 2 章：模型](model.md) |
+- [Shared setting 包手册](README.md)
+- [Shared setting 模型](model.md)
+- [Shared setting 函数与 API](functions.md)

@@ -23,7 +23,7 @@
 
 # Shared Logging Runtime 边界
 
-本页回答 `packages/shared/logging` 如何接触 zap、lumberjack 和 OpenTelemetry SDK，同时不接管 runtime bootstrap。
+Shared logging runtime 边界定义 `packages/shared/logging` 如何接触 zap、lumberjack 和 OpenTelemetry SDK，同时 runtime bootstrap 仍由 runtime-owning code 负责。
 
 ## Boundary Diagram
 
@@ -122,7 +122,7 @@ Runtime bootstrap 拥有：
 | OTLP exporter is unsupported | Runtime/exporter integration 必须单独实现。 |
 | No runtime bootstrap is included | Server、scheduler、collector、compute 必须自己 wire lifecycle behavior。 |
 
-## 相关参考
+## 相关页面
 
 - [契约](contract.md)
 - [模型](model.md)

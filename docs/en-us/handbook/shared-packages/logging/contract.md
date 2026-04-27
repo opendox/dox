@@ -23,7 +23,7 @@
 
 # Shared Logging Contract
 
-This page answers what callers can rely on from `packages/shared/logging`, which behavior is only configuration shape today, and which errors are part of the package contract.
+The shared logging contract defines what callers can rely on from `packages/shared/logging`, which behavior is only configuration shape today, and which errors are part of the package boundary.
 
 ## Ownership Contract
 
@@ -150,7 +150,7 @@ The following behavior is outside the package contract today:
 - field-level redaction execution;
 - dataset-based core routing.
 
-## Related References
+## Related Pages
 
 - [Model](model.md)
 - [Runtime Boundary](runtime-boundary.md)

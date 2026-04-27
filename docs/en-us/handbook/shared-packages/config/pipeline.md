@@ -179,3 +179,9 @@ For deterministic operations:
 - log diagnostics when investigating override behavior.
 
 Do not log raw merged values unless the caller has already applied its own redaction policy.
+
+## Related Pages
+
+- [Shared config package manual](README.md)
+- [Shared config contract](contract.md)
+- [Shared config functions and API](functions.md)

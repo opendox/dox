@@ -23,7 +23,7 @@
 
 # Shared Logging 模型
 
-本页回答 Dox log records 应如何描述 producer、execution chain、observed event、internal node、tags 和 detailed fields。
+Shared logging 模型定义 Dox log records 如何描述 producer、execution chain、observed event、internal node、tags 和 detailed fields。
 
 ## 模型图
 
@@ -187,7 +187,7 @@ Attribute constructors 会合并 non-empty structured values：
 
 Call-site attributes 会在 logger-level attributes 和 context correlation 之后应用。Call-site values 可以覆盖之前的 structured values。
 
-## 相关参考
+## 相关页面
 
 - [契约](contract.md)
 - [Runtime 边界](runtime-boundary.md)

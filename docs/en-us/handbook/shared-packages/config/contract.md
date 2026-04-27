@@ -154,3 +154,9 @@ The following behavior is outside this package contract:
 - secret resolution;
 - redacting returned values or diagnostics;
 - guaranteeing Koanf or mapstructure behavior as a public runtime API.
+
+## Related Pages
+
+- [Shared config package manual](README.md)
+- [Shared config pipeline](pipeline.md)
+- [Shared config functions and API](functions.md)

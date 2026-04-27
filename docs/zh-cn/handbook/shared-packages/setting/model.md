@@ -21,14 +21,9 @@
   @Modified: 2026-04-27
 -->
 
-# 第 2 章：Shared Setting 模型
+# Shared Setting 模型
 
-| 上一章 | 上级 | 下一章 |
-| --- | --- | --- |
-| [第 1 章：契约](contract.md) | [Shared setting 包](README.md) | [第 3 章：函数与 API](functions.md) |
-
-> [!NOTE]
-> 本章描述数据形状。方法行为和导出 helper 见 [第 3 章](functions.md)。
+Shared setting 模型描述 `packages/shared/setting` 导出的 fragments、enum values、defaults、validation tags 和 consumer relationship。方法行为和导出 helpers 见 [函数与 API](functions.md)。
 
 ## 模型图
 
@@ -178,8 +173,8 @@ flowchart TD
 
 这个图只是 consumer 示例。Shared package 仍然只导出独立 fragments。
 
-## 导航
+## 相关页面
 
-| 上一章 | 上级 | 下一章 |
-| --- | --- | --- |
-| [第 1 章：契约](contract.md) | [Shared setting 包](README.md) | [第 3 章：函数与 API](functions.md) |
+- [Shared setting 包手册](README.md)
+- [Shared setting 契约](contract.md)
+- [Shared setting 函数与 API](functions.md)

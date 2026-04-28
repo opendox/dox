@@ -50,6 +50,8 @@ The expected assembly order is:
 Use one file per configuration group:
 
 - `setting.go` defines the root `Setting` aggregate.
+- `default.go` defines the defaulting contract shared by setting groups.
+- `validate.go` defines the validation contract shared by setting groups.
 - `identity.go` defines the identity group.
 - `logging.go` defines the server logging configuration group backed by shared logging config.
 - Future `database.go`, `http.go`, `security.go`, and similar files should define their own focused groups.
@@ -65,6 +67,30 @@ type Setting struct {
 ```
 
 Callers should pass narrow group settings to subsystems instead of passing the full root setting everywhere.
+
+## Defaults And Validation
+
+Setting groups that can fill stable defaults should implement:
+
+```go
+type Defaultable interface {
+    Default() error
+}
+```
+
+Setting groups that can validate their final values should implement:
+
+```go
+type Validatable interface {
+    Validate() error
+}
+```
+
+`DefaultGroups` applies defaults in order and stops on the first error. Use explicit root-level calls when a group needs bootstrap-derived seed values, such as identity using the bootstrap env.
+
+`ValidateGroups` validates groups and joins reported errors so startup can report every invalid group found in one pass.
+
+Future HTTP, database, Redis, RabbitMQ, security, plugin, and similar setting groups should plug into these default and validation contracts before runtime bootstrap consumes them. The contracts do not define those concrete groups, construct clients, open network listeners, resolve secrets, or start runtime resources.
 
 ## Identity
 

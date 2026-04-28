@@ -18,18 +18,18 @@
   @File    : server/README.md
   @Author  : Frost Leo <frostleo.dev@gmail.com>
   @Created : 2026-04-24
-  @Modified: 2026-04-26
+  @Modified: 2026-04-28
 -->
 
 # Dox Server
 
 `server` is the Web backend runtime for Dox.
 
-The current module contains the CLI entrypoint, shared version command, bootstrap configuration snapshot loading, and the initial server-owned identity setting aggregate. HTTP server startup, database access, logging, security, and EDA integration are intentionally out of scope for this milestone.
+The current module contains the CLI entrypoint, shared version command, bootstrap configuration snapshot loading, and server-owned setting assembly for identity and logging. HTTP server startup, database access, security, and EDA integration are intentionally out of scope for this milestone.
 
 ## Configuration Bootstrap
 
-`server/internal/bootstrap` can load a startup configuration snapshot through `packages/shared/config`.
+`server/internal/bootstrap` can load a startup configuration snapshot through `packages/shared/config` and assemble it into a typed `server/internal/setting.Setting`.
 
 The current bootstrap convention is:
 
@@ -38,7 +38,9 @@ The current bootstrap convention is:
 - `configs/local.<format>` as an optional local override;
 - `DOX_SERVER_` environment variables as optional final overrides.
 
-The bootstrap snapshot currently uses `map[string]any`. Concrete server setting groups belong under `server/internal/setting`, where each configuration group owns its own file. The first group is identity; concrete HTTP, database, cache, logger, security, and IAM setting structs remain out of scope until those runtime resources are introduced.
+Raw bootstrap snapshots use `map[string]any` and allow unknown keys so operators can inspect loaded values before typed assembly. Typed server setting assembly rejects unknown keys, applies defaults, and validates group semantics before runtime resources are constructed.
+
+Concrete server setting groups belong under `server/internal/setting`, where each configuration group owns its own file. Current groups cover identity and logging. Concrete HTTP, database, cache, security, and IAM setting structs remain out of scope until those runtime resources are introduced.
 
 ## Usage
 

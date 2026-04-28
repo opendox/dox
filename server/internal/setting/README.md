@@ -18,7 +18,7 @@
   @File    : server/internal/setting/README.md
   @Author  : Frost Leo <frostleo.dev@gmail.com>
   @Created : 2026-04-26
-  @Modified: 2026-04-26
+  @Modified: 2026-04-28
 -->
 
 # Server Setting
@@ -29,13 +29,21 @@ Shared packages provide reusable configuration fragments. This package decides h
 
 ## Boundaries
 
-- `server/internal/bootstrap` loads source snapshots from files and environment variables.
+- `server/internal/bootstrap` loads source snapshots from files and environment variables, then assembles typed server settings.
 - `packages/shared/config` provides source loading, merging, and decoding primitives.
 - `packages/shared/setting` defines reusable setting fragments.
 - `packages/shared/logging` defines the shared logging model and runtime helper configuration.
 - `server/internal/setting` defines the server runtime aggregate and group-level semantics.
 
-Bootstrap should not own concrete HTTP, database, identity, logging, or security setting structs. It should continue to provide loaded values and diagnostics.
+Bootstrap should not own concrete HTTP, database, identity, logging, or security setting structs. It coordinates source loading, decode, defaulting, validation, and diagnostics preservation, while this package owns the setting groups and their semantics.
+
+The expected assembly order is:
+
+1. `server/internal/bootstrap` builds config sources from startup options.
+2. `packages/shared/config` loads and merges raw values into a `map[string]any` snapshot.
+3. `server/internal/bootstrap` decodes the snapshot into `Setting` with unknown keys rejected.
+4. `server/internal/setting` applies defaults and validates group semantics.
+5. Later runtime bootstrap code receives validated narrow setting groups and constructs resources.
 
 ## File Convention
 

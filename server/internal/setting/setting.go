@@ -18,7 +18,7 @@
  * @File    : setting.go
  * @Author  : Frost Leo <frostleo.dev@gmail.com>
  * @Created : 2026-04-26
- * @Modified: 2026-04-26
+ * @Modified: 2026-04-28
  */
 
 package setting
@@ -51,7 +51,7 @@ func (s *Setting) DefaultWithOptions(options DefaultOptions) error {
 	}); err != nil {
 		return err
 	}
-	if err := s.Logging.Default(); err != nil {
+	if err := DefaultGroups(&s.Logging); err != nil {
 		return err
 	}
 	return nil
@@ -59,8 +59,8 @@ func (s *Setting) DefaultWithOptions(options DefaultOptions) error {
 
 // Validate verifies the concrete server configuration aggregate.
 func (s Setting) Validate() error {
-	return errors.Join(
-		s.Identity.Validate(),
-		s.Logging.Validate(),
+	return ValidateGroups(
+		s.Identity,
+		s.Logging,
 	)
 }

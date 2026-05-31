@@ -18,7 +18,7 @@
  * @File    : main.go
  * @Author  : Frost Leo <frostleo.dev@gmail.com>
  * @Created : 2026-04-24
- * @Modified: 2026-04-24
+ * @Modified: 2026-05-31
  */
 
 package main
@@ -27,12 +27,17 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/opendox/dox/server/internal/command"
 )
 
 func main() {
-	if err := command.Execute(context.Background(), os.Args[1:], command.Config{}); err != nil {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	if err := command.Execute(ctx, os.Args[1:], command.Config{}); err != nil {
 		_, _ = fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}

@@ -18,7 +18,7 @@
  * @File    : root.go
  * @Author  : Frost Leo <frostleo.dev@gmail.com>
  * @Created : 2026-04-24
- * @Modified: 2026-04-24
+ * @Modified: 2026-05-31
  */
 
 package command
@@ -33,8 +33,9 @@ import (
 
 // Config defines external command streams for the server CLI.
 type Config struct {
-	Out    io.Writer
-	ErrOut io.Writer
+	Out       io.Writer
+	ErrOut    io.Writer
+	ServeWait ServeWaitFunc
 }
 
 // Execute runs the server CLI with explicit args and stream configuration.
@@ -64,6 +65,7 @@ func NewRootCommand(cfg Config) *cobra.Command {
 	}
 	cmd.SetOut(out)
 	cmd.SetErr(errOut)
+	cmd.AddCommand(newServeCommand(cfg))
 	cmd.AddCommand(newVersionCommand())
 	return cmd
 }

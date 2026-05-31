@@ -18,14 +18,14 @@
   @File    : server/README.md
   @Author  : Frost Leo <frostleo.dev@gmail.com>
   @Created : 2026-04-24
-  @Modified: 2026-04-28
+  @Modified: 2026-05-31
 -->
 
 # Dox Server
 
 `server` is the Web backend runtime for Dox.
 
-The current module contains the CLI entrypoint, shared version command, bootstrap configuration snapshot loading, and server-owned setting assembly for identity and logging. HTTP server startup, database access, security, and EDA integration are intentionally out of scope for this milestone.
+The current module contains the CLI entrypoint, shared version command, bootstrap configuration snapshot loading, server-owned setting assembly for identity and logging, and the first runtime boot boundary. HTTP server startup, database access, security, and EDA integration are intentionally out of scope for this milestone.
 
 ## Configuration Bootstrap
 
@@ -42,6 +42,22 @@ Raw bootstrap snapshots use `map[string]any` and allow unknown keys so operators
 
 Concrete server setting groups belong under `server/internal/setting`, where each configuration group owns its own file. Current groups cover identity and logging. Concrete HTTP, database, cache, security, and IAM setting structs remain out of scope until those runtime resources are introduced.
 
+## Runtime Boot
+
+The server startup pipeline is:
+
+```text
+dox-server serve
+  -> CLI flags build bootstrap.ConfigOptions
+  -> bootstrap.LoadSetting loads, defaults, and validates settings
+  -> bootstrap.Boot constructs runtime resources from the SettingSnapshot
+  -> Runtime.Shutdown releases resources in reverse construction order
+```
+
+`bootstrap.Boot` does not load configuration sources. It consumes an already validated `SettingSnapshot` and currently constructs the logging runtime resources: logging resource identity, zap core base, Dox logger facade, and OpenTelemetry SDK base without installing global providers.
+
+Future server-owned HTTP, database, queue producer, and plugin host modules should add typed setting groups under `server/internal/setting` and expose constructors that `server/internal/bootstrap` can call. Scheduling, Collection, and Computation runtimes should use their own runtime modules and boot boundaries when they are introduced; they must not attach themselves to the Web backend bootstrap. Feature packages should not import `server/internal/bootstrap`; bootstrap remains the server composition root for this server process only.
+
 ## Usage
 
 From the repository root:
@@ -50,10 +66,17 @@ From the repository root:
 go run ./server version
 ```
 
+Start the server runtime boot path from the repository root. The configured directory must contain `base.<format>`:
+
+```bash
+go run ./server serve --config-dir configs --env dev --config-format yaml
+```
+
 From the `server` module:
 
 ```bash
 go run . version
+go run . serve --config-dir ../configs --env dev --config-format yaml
 ```
 
 Build the server CLI binary from the repository root:

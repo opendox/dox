@@ -18,18 +18,18 @@
   @File    : server/internal/setting/README.md
   @Author  : Frost Leo <frostleo.dev@gmail.com>
   @Created : 2026-04-26
-  @Modified: 2026-04-28
+  @Modified: 2026-05-31
 -->
 
 # Server Setting
 
 `server/internal/setting` owns the concrete configuration aggregate for the Dox Web backend runtime.
 
-Shared packages provide reusable configuration fragments. This package decides how the server runtime composes those fragments, which defaults are server-specific, and which validation rules are stricter than the shared fragment rules.
+Shared packages provide reusable configuration fragments. This package decides how the Web backend server runtime composes those fragments, which defaults are server-specific, and which validation rules are stricter than the shared fragment rules. Scheduler, collector, and computation runtimes should own separate setting aggregates when they are introduced.
 
 ## Boundaries
 
-- `server/internal/bootstrap` loads source snapshots from files and environment variables, then assembles typed server settings.
+- `server/internal/bootstrap` loads source snapshots from files and environment variables, assembles typed server settings, and boots runtime resources from validated snapshots.
 - `packages/shared/config` provides source loading, merging, and decoding primitives.
 - `packages/shared/setting` defines reusable setting fragments.
 - `packages/shared/logging` defines the shared logging model and runtime helper configuration.
@@ -43,7 +43,7 @@ The expected assembly order is:
 2. `packages/shared/config` loads and merges raw values into a `map[string]any` snapshot.
 3. `server/internal/bootstrap` decodes the snapshot into `Setting` with unknown keys rejected.
 4. `server/internal/setting` applies defaults and validates group semantics.
-5. Later runtime bootstrap code receives validated narrow setting groups and constructs resources.
+5. `server/internal/bootstrap.Boot` receives the validated `SettingSnapshot` and constructs runtime resources.
 
 ## File Convention
 
@@ -90,7 +90,7 @@ type Validatable interface {
 
 `ValidateGroups` validates groups and joins reported errors so startup can report every invalid group found in one pass.
 
-Future HTTP, database, Redis, RabbitMQ, security, plugin, and similar setting groups should plug into these default and validation contracts before runtime bootstrap consumes them. The contracts do not define those concrete groups, construct clients, open network listeners, resolve secrets, or start runtime resources.
+Future server-owned HTTP, database, Redis, RabbitMQ producer, security, plugin host, and similar setting groups should plug into these default and validation contracts before server runtime bootstrap consumes them. Scheduler, collector, and computation runtime settings should not be added to this package only because they share deployment infrastructure. The contracts do not define those concrete groups, construct clients, open network listeners, resolve secrets, or start runtime resources.
 
 ## Identity
 
@@ -110,6 +110,6 @@ The server package defaults `System.Runtime` to `server`. That default does not 
 
 The logging group is backed by `packages/shared/logging.Config`.
 
-Server settings own loading, defaulting, and validation of this group. Runtime bootstrap will later decide how to construct zap cores, the Dox logger facade, and OpenTelemetry providers from the validated config.
+Server settings own loading, defaulting, and validation of this group. Runtime bootstrap constructs zap cores, the Dox logger facade, and the OpenTelemetry SDK base from the validated config.
 
 This package must not open logging sinks, create log files, install OpenTelemetry globals, or wire HTTP/server modules to logging.
